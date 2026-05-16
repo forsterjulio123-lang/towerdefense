@@ -585,7 +585,12 @@ body {
       <h1 class="lose">Derrota</h1>
       <p id="goMsg" style="color:#7090a0;font-size:10px;letter-spacing:2px;margin-bottom:16px;">Os inimigos invadiram a base!</p>
       <div id="runSummaryLose"></div>
-      <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
+
+      <div id="mpBtnsLose" style="display:none;flex-direction:column;gap:10px;margin-top:16px;">
+        <button class="btn btn-primary"   onclick="mpPostGame()">▶&nbsp;&nbsp;Continuar Partida</button>
+        <button class="btn btn-secondary" onclick="goToMenu()">⌂&nbsp;&nbsp;Voltar ao Menu</button>
+      </div>
+      <div id="soloBtnsLose" style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
         <button class="btn btn-primary"    onclick="restartGame()">↻ Jogar Novamente</button>
         <button class="btn btn-secondary"  onclick="goToMenu()">⌂ Voltar ao Menu</button>
         <button class="btn" style="border-color:#8a2a8a;color:#c060ff;" onclick="goToMenu();setTimeout(openSkillTree,80)">✦ Árvore de Habilidades</button>
@@ -599,12 +604,56 @@ body {
       <h1 class="win">Vitória!</h1>
       <p id="vicMsg" style="color:#7090a0;font-size:10px;letter-spacing:2px;margin-bottom:16px;">Todas as ondas defendidas!</p>
       <div id="runSummaryWin"></div>
-      <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
+
+      <div id="mpBtnsWin" style="display:none;flex-direction:column;gap:10px;margin-top:16px;">
+        <button class="btn btn-primary"   onclick="mpPostGame()">▶&nbsp;&nbsp;Continuar Partida</button>
+        <button class="btn btn-secondary" onclick="goToMenu()">⌂&nbsp;&nbsp;Voltar ao Menu</button>
+      </div>
+      <div id="soloBtnsWin" style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
         <button class="btn btn-primary"    onclick="restartGame()">↻ Jogar Novamente</button>
         <button class="btn btn-secondary"  onclick="goToMenu()">⌂ Voltar ao Menu</button>
         <button class="btn" style="border-color:#8a2a8a;color:#c060ff;" onclick="goToMenu();setTimeout(openSkillTree,80)">✦ Árvore de Habilidades</button>
       </div>
     </div>
+  </div>
+
+
+  <!-- MP POST-GAME SCREEN -->
+  <div id="mpPostGameScreen" style="display:none;position:absolute;inset:0;z-index:320;
+    background:rgba(4,8,14,0.97);flex-direction:column;align-items:center;
+    justify-content:center;gap:20px;font-family:'Courier New',monospace;">
+
+    <div style="font-size:10px;letter-spacing:5px;color:#c8a040;text-transform:uppercase;">
+      ⚔ Co-op — Próxima Partida
+    </div>
+
+    <!-- Pontos de skill ganhos -->
+    <div id="mpPostSkPts" style="background:#080f1c;border:1px solid #1a3a5a;border-radius:8px;
+      padding:12px 28px;text-align:center;font-size:11px;letter-spacing:2px;color:#60d090;"></div>
+
+    <!-- Botão Skill Tree (qualquer jogador) -->
+    <button onclick="mpOpenSkillTree()"
+      style="width:280px;padding:11px 0;font-family:'Courier New',monospace;font-size:11px;
+             letter-spacing:3px;background:linear-gradient(180deg,#1a0e30,#0e0818);
+             border:1px solid #5a2a8a;border-radius:4px;color:#c080ff;cursor:pointer;">
+      ✦ Árvore de Habilidades
+    </button>
+
+    <!-- Seleção de dificuldade (host) / espera (guest) -->
+    <div id="mpPostDiffSection" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <div style="font-size:9px;letter-spacing:4px;color:#607080;text-transform:uppercase;">
+        Nova Partida
+      </div>
+      <div id="mpPostDiffBtns" style="display:flex;flex-direction:column;gap:7px;align-items:center;"></div>
+      <div id="mpPostGuestMsg" style="display:none;font-size:10px;letter-spacing:2px;color:#607080;">
+        ⏳ Aguardando o host escolher a dificuldade...
+      </div>
+    </div>
+
+    <button onclick="goToMenu()" class="mbtn mbtn-secondary"
+      style="width:180px;padding:9px 0;font-size:10px;letter-spacing:2px;margin-top:4px;">
+      ⌂ Voltar ao Menu
+    </button>
   </div>
 
   <!-- CARD SELECT MODAL (a cada 10 ondas) -->
@@ -2634,6 +2683,8 @@ function updateWave(dt) {
       SK.points += _isInfernal ? 2 : 1;
     }
     SK._save();
+    if(MP.connected && MP.isHost)
+      MP.sendAction('sk_sync',{points:SK.points});
     updateUI();
     const cycle = _isInfernal ? ` — Ciclo ${Math.ceil(waveNum/10)}` : '';
     showWaveBanner('✓ ONDA '+waveNum+cycle+' — DEFESA!');
@@ -2921,6 +2972,13 @@ function showOverlay(type) {
   _populateRunSummary(type);
   if(type==='win')  { document.getElementById('victory').classList.remove('hidden'); SFX.victory(); }
   if(type==='lose') { SFX.defeat(); document.getElementById('gameOver').classList.remove('hidden'); }
+  // MP: alterna botões e sincroniza com P2
+  const isMp = MP.enabled;
+  ['mpBtnsWin','mpBtnsLose'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=isMp?'flex':'none'; });
+  ['soloBtnsWin','soloBtnsLose'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=isMp?'none':'flex'; });
+  if(MP.connected && MP.isHost) {
+    MP.sendAction('game_over',{result:type, skPoints:SK.points, ptsAtStart:_skPtsAtStart});
+  }
 }
 
 function _populateRunSummary(type) {
@@ -3276,7 +3334,9 @@ function resumeFromEsc() {
 
 function goToMenu() {
   MP.disconnect();
-  document.getElementById('mpLobby').style.display='none';
+  ['mpLobby','mpPostGameScreen'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
   document.getElementById('escMenu').classList.remove('open');
   _gameRunning = false;
   paused = false;
@@ -3851,14 +3911,18 @@ const MP = {
   startGame(diffData) {
     this.enabled = true;
     this.send({type:'start', diff:diffData});
-    document.getElementById('mpLobby').style.display = 'none';
+    ['mpLobby','mpPostGameScreen'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.style.display='none';
+    });
     document.getElementById('mpIndicator').style.display = 'flex';
     _mpApplyDiff(diffData);
   },
 
   _onStart(msg) {
     this.enabled = true;
-    document.getElementById('mpLobby').style.display = 'none';
+    ['mpLobby','mpPostGameScreen'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.style.display='none';
+    });
     document.getElementById('mpIndicator').style.display = 'flex';
     document.getElementById('mpAvatarP1').textContent = '🗡';
     _mpApplyDiff(msg.diff);
@@ -3980,6 +4044,14 @@ const MP = {
       case 'wave_request':
         if(this.isHost) startWave();
         break;
+      case 'sk_sync':
+        SK.points = d.points; SK._save();
+        break;
+      case 'game_over':
+        SK.points = d.skPoints; SK._save();
+        _skPtsAtStart = d.ptsAtStart;
+        showOverlay(d.result);
+        break;
       case 'wave_start':
         if(!this.isHost) {
           // Guest: apenas sincroniza o número da onda
@@ -4098,7 +4170,11 @@ function _mpApplyDiff(d) {
   });
   ssRunning=false; _gameRunning=true;
   // Pequeno delay para garantir que o DOM atualizou antes do loop
-  setTimeout(() => { initState(); requestAnimationFrame(loop); }, 80);
+  setTimeout(() => {
+    _skPtsAtStart = SK.points; // reseta tracker de pontos por sessão
+    initState();
+    requestAnimationFrame(loop);
+  }, 80);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -4130,6 +4206,59 @@ async function mpCriarSala() {
   } catch(e) {
     document.getElementById('mpStatus').textContent = '❌ Erro: ' + (e.message||e);
   }
+}
+
+
+// ─────────────────────────────────────────────────────────────
+//  TELA PÓS-JOGO MP
+// ─────────────────────────────────────────────────────────────
+function mpPostGame() {
+  hideOverlays();
+  const ptsEarned = SK.points - _skPtsAtStart;
+  const ptsTxt = document.getElementById('mpPostSkPts');
+  if(ptsTxt) ptsTxt.textContent =
+    ptsEarned > 0
+      ? `+${ptsEarned} ponto${ptsEarned>1?'s':''} de habilidade ganho${ptsEarned>1?'s':''}! Total: ${SK.points}`
+      : `Pontos de habilidade disponíveis: ${SK.points}`;
+
+  // Monta botões de dificuldade
+  const DIFFS_MP = [
+    {id:'facil',   label:'🟢 Fácil',   mult:0.6, color:'#1a4a1a',border:'#3a8a3a',text:'#70d040'},
+    {id:'normal',  label:'🔵 Normal',  mult:3.0, color:'#1a3a6a',border:'#4a7aaa',text:'#80c0f0'},
+    {id:'dificil', label:'🟠 Difícil', mult:4.0, color:'#5a2a08',border:'#bb6a18',text:'#f09030'},
+    {id:'epico',   label:'🔴 Épico',   mult:6.0, color:'#3a0a0a',border:'#9a2a2a',text:'#f07070'},
+  ];
+  const box = document.getElementById('mpPostDiffBtns');
+  const guestMsg = document.getElementById('mpPostGuestMsg');
+
+  if(box) box.innerHTML = '';
+  if(MP.isHost) {
+    if(guestMsg) guestMsg.style.display = 'none';
+    DIFFS_MP.forEach(d => {
+      const btn = document.createElement('button');
+      btn.style.cssText = `width:240px;padding:10px 16px;font-family:'Courier New',monospace;
+        font-size:10px;font-weight:bold;letter-spacing:3px;border-radius:4px;cursor:pointer;
+        border:1px solid ${d.border};background:linear-gradient(180deg,${d.color},rgba(0,0,0,0.5));
+        color:${d.text};text-transform:uppercase;`;
+      btn.textContent = d.label;
+      btn.addEventListener('click', () => {
+        document.getElementById('mpPostGameScreen').style.display = 'none';
+        MP.startGame(d);
+      });
+      box.appendChild(btn);
+    });
+  } else {
+    // Guest: aguarda host escolher
+    if(box) box.style.display = 'none';
+    if(guestMsg) guestMsg.style.display = 'block';
+  }
+
+  document.getElementById('mpPostGameScreen').style.display = 'flex';
+}
+
+function mpOpenSkillTree() {
+  // Abre a árvore de habilidades preservando a tela pós-jogo por baixo
+  if(typeof openSkillTree === 'function') openSkillTree();
 }
 
 function mpCopiarCodigo() {
