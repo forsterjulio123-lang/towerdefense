@@ -33,6 +33,15 @@ html, body {
 /* Painéis laterais: respeitam safe-area do notch/Dynamic Island */
 #mobileLeft  { padding-left:  max(6px, env(safe-area-inset-left));  }
 #mobileRight { padding-right: max(6px, env(safe-area-inset-right)); }
+/* Overlay mobile para menu de upgrade — fora do stage, tamanho real */
+#mobileUpgradeOverlay {
+  display:none; position:fixed; bottom:0; left:72px; right:72px;
+  z-index:1500; background:rgba(3,8,18,0.98);
+  border-top:1px solid #1a4060; border-radius:16px 16px 0 0;
+  font-family:'Courier New',monospace; overflow-y:auto;
+  max-height:75vh; padding-bottom:env(safe-area-inset-bottom,0);
+  box-shadow:0 -4px 32px rgba(0,0,0,0.8);
+}
 /* Standalone PWA (Add to Home Screen): jogo usa tela inteira sem barra */
 @media (display-mode: fullscreen), (display-mode: standalone) {
   html, body { height: 100vh; }
@@ -94,10 +103,10 @@ body {
 /* TOP BAR */
 #topbar {
   position:absolute; top:0; left:0; right:0; height:52px;
-  background:linear-gradient(180deg,rgba(8,16,28,0.98),rgba(8,16,28,0.92));
+  background:linear-gradient(180deg,rgba(8,16,28,0.96),rgba(8,16,28,0.86));
   border-bottom:2px solid #1a2e40;
   display:flex; align-items:center; padding:0 16px; gap:20px;
-  box-shadow:0 4px 18px rgba(0,0,0,.5); z-index:50;
+  box-shadow:0 4px 18px rgba(0,0,0,.5); z-index:10;
 }
 .stat { display:flex; align-items:center; gap:7px; font-size:17px; font-weight:bold;
   letter-spacing:1px; text-shadow:0 2px 4px rgba(0,0,0,.6); }
@@ -111,11 +120,10 @@ body {
 /* BOTTOM BAR */
 #bottombar {
   position:absolute; bottom:0; left:0; right:0; height:58px;
-  background:linear-gradient(0deg,rgba(8,16,28,0.98),rgba(8,16,28,0.92));
+  background:linear-gradient(0deg,rgba(8,16,28,0.96),rgba(8,16,28,0.86));
   border-top:2px solid #1a2e40;
   display:flex; align-items:center; justify-content:space-between;
-  padding:0 16px; gap:12px; z-index:50;
-  box-shadow:0 -4px 18px rgba(0,0,0,.5);
+  padding:0 16px; gap:12px; z-index:10;
 }
 .btn {
   background:linear-gradient(180deg,#142840,#0a1828);
@@ -147,6 +155,15 @@ body {
   padding:10px; display:flex; gap:8px;
   box-shadow:0 8px 32px rgba(0,0,0,.7);
   z-index:20; transform:translate(-50%,-100%);
+}
+/* upgradeMenu: SEMPRE visível */
+#upgradeMenu {
+  position:fixed !important;
+  z-index:9000 !important;
+  transform:none !important;
+  max-height:90vh; overflow-y:auto; overflow-x:hidden;
+  border-radius:10px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.9), 0 0 0 1px rgba(80,160,220,0.2);
 }
 .popup.hidden { display:none; }
 .tow-card {
@@ -262,17 +279,16 @@ body {
 }
 .menu-btns {
   display:flex; flex-direction:column;
-  gap:18px; z-index:10; align-items:center;
+  gap:12px; z-index:10; align-items:center;
 }
 .mbtn {
-  width:380px; padding:22px 0;
+  width:240px; padding:14px 0;
   font-family:'Courier New',monospace;
-  font-size:19px; font-weight:bold;
-  letter-spacing:5px; text-transform:uppercase;
-  border-radius:8px; cursor:pointer;
+  font-size:13px; font-weight:bold;
+  letter-spacing:4px; text-transform:uppercase;
+  border-radius:4px; cursor:pointer;
   transition:all .18s; border:none;
   position:relative; overflow:hidden;
-  box-shadow:0 4px 20px rgba(0,0,0,0.5);
 }
 .mbtn::before {
   content:''; position:absolute; inset:0;
@@ -281,29 +297,29 @@ body {
 }
 .mbtn:hover::before { transform:translateX(100%); }
 .mbtn-primary {
-  background:linear-gradient(180deg,#2a5a1a,#1a3a10);
-  border:2px solid #5aaa2a; color:#90f050;
-  box-shadow:0 0 24px rgba(80,200,40,0.3), 0 4px 16px rgba(0,0,0,0.5);
+  background:linear-gradient(180deg,#2a4a1a,#1a3010);
+  border:1px solid #4a8a2a; color:#80e040;
+  box-shadow:0 0 20px rgba(80,200,40,0.2);
 }
 .mbtn-primary:hover {
-  border-color:#90e050; color:#d0ff90;
-  box-shadow:0 0 36px rgba(80,200,40,0.55), 0 4px 20px rgba(0,0,0,0.6);
+  border-color:#80d040; color:#c0ff80;
+  box-shadow:0 0 30px rgba(80,200,40,0.4);
 }
 .mbtn-secondary {
-  background:linear-gradient(180deg,#102030,#080e18);
-  border:1px solid #2a4a68; color:#70a8c8;
+  background:linear-gradient(180deg,#0e1e30,#08121e);
+  border:1px solid #1e3a50; color:#5a8aaa;
 }
 .mbtn-secondary:hover {
-  border-color:#5a9aba; color:#a8d8f0;
-  box-shadow:0 0 24px rgba(60,120,180,0.3);
+  border-color:#4a7a9a; color:#90c0d8;
+  box-shadow:0 0 20px rgba(60,120,180,0.2);
 }
 .mbtn-danger {
-  background:linear-gradient(180deg,#301010,#1a0808);
-  border:1px solid #682020; color:#c06060;
+  background:linear-gradient(180deg,#2a0e0e,#180808);
+  border:1px solid #501a1a; color:#aa5050;
 }
 .mbtn-danger:hover {
-  border-color:#a04040; color:#f09090;
-  box-shadow:0 0 24px rgba(180,40,40,0.4);
+  border-color:#904040; color:#e08080;
+  box-shadow:0 0 20px rgba(180,40,40,0.3);
 }
 #settingsModal {
   position:absolute; inset:0; z-index:210;
@@ -353,54 +369,32 @@ body {
   box-shadow:0 0 60px rgba(0,80,160,0.2),0 20px 60px rgba(0,0,0,0.85);}
 .esc-modal .esc-title{font-size:10px;letter-spacing:7px;color:#4a7a9a;
   text-transform:uppercase;margin-bottom:28px;}
-.esc-modal .mbtn{width:280px;margin:0;}
+.esc-modal .mbtn{width:230px;margin:0;}
 
 /* ═══ SKILL TREE ══════════════════════════════════════════════ */
 #skillTreeOverlay{position:absolute;inset:0;z-index:300;display:none;overflow:hidden;background:#020408;}
 #skillTreeOverlay.open{display:block;}
 #skillBgCanvas{position:absolute;inset:0;width:100%;height:100%;}
 #skillSvgLines{position:absolute;inset:0;pointer-events:none;}
-/* viewport pan/zoom container */
-#skillViewport{position:absolute;inset:0;overflow:hidden;cursor:grab;}
-#skillViewport.panning{cursor:grabbing;}
-#skillCanvas{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform;}
-#skillNodes{position:absolute;top:0;left:0;}
-.sk-header{position:absolute;top:16px;left:0;right:0;text-align:center;pointer-events:none;z-index:20;}
-.sk-header h2{font-size:12px;letter-spacing:7px;color:#c8a040;text-transform:uppercase;
+#skillNodes{position:absolute;inset:0;}
+.sk-header{position:absolute;top:18px;left:0;right:0;text-align:center;pointer-events:none;z-index:10;}
+.sk-header h2{font-size:11px;letter-spacing:7px;color:#c8a040;text-transform:uppercase;
   text-shadow:0 0 20px rgba(200,160,64,0.55);}
-.sk-pts{font-size:28px;color:#f4c84a;letter-spacing:2px;margin-top:4px;font-weight:bold;
+.sk-pts{font-size:26px;color:#f4c84a;letter-spacing:2px;margin-top:5px;font-weight:bold;
   text-shadow:0 0 14px rgba(244,200,74,0.65);}
-.sk-pts span{font-size:12px;color:#8aa0b0;letter-spacing:3px;vertical-align:middle;margin-left:6px;}
-/* Bottom action bar — always visible, never blocks nodes */
-#skBottomBar{
-  position:absolute;bottom:0;left:0;right:0;z-index:20;height:80px;
-  background:linear-gradient(0deg,rgba(2,4,8,0.98),rgba(2,4,8,0.88));
-  border-top:2px solid #1a3050;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 28px;gap:16px;
-  box-shadow:0 -4px 24px rgba(0,0,0,0.8);
-}
-.sk-btn-close{
-  background:linear-gradient(180deg,#0e2038,#081020);
-  border:2px solid #2a5080;color:#80b8e0;font-family:'Courier New',monospace;
-  font-size:16px;font-weight:bold;letter-spacing:4px;padding:17px 38px;border-radius:8px;
-  cursor:pointer;text-transform:uppercase;transition:all .18s;
-  box-shadow:0 0 14px rgba(40,100,160,0.25);}
-.sk-btn-close:hover{border-color:#5a9ad0;color:#c0e8ff;box-shadow:0 0 26px rgba(74,138,200,0.5);}
-.sk-reset-btn{
+.sk-pts span{font-size:11px;color:#8aa0b0;letter-spacing:3px;vertical-align:middle;margin-left:6px;}
+.sk-btn-close{position:absolute;top:16px;right:20px;z-index:15;
+  background:linear-gradient(180deg,#1a2840,#0e1828);
+  border:1px solid #2a4060;color:#6a9ab0;font-family:'Courier New',monospace;
+  font-size:10px;letter-spacing:2px;padding:9px 18px;border-radius:4px;
+  cursor:pointer;text-transform:uppercase;transition:all .15s;}
+.sk-btn-close:hover{border-color:#4a8ab0;color:#b0d8f0;box-shadow:0 0 14px rgba(74,138,176,0.35);}
+.sk-reset-btn{position:absolute;bottom:18px;right:22px;z-index:15;
   background:linear-gradient(180deg,#2a0e0e,#180808);
-  border:2px solid #702020;color:#d07070;font-family:'Courier New',monospace;
-  font-size:15px;font-weight:bold;letter-spacing:3px;padding:17px 32px;border-radius:8px;
-  cursor:pointer;text-transform:uppercase;transition:all .18s;
-  box-shadow:0 0 12px rgba(160,40,40,0.2);}
-.sk-reset-btn:hover{border-color:#b04040;color:#ffaaaa;box-shadow:0 0 22px rgba(200,50,50,0.4);}
-/* zoom hint */
-#skZoomHint{font-size:9px;letter-spacing:2px;color:#2a4a60;text-transform:uppercase;
-  display:flex;align-items:center;gap:10px;}
-#skZoomReset{background:transparent;border:1px solid #1a3040;color:#3a6080;
-  font-family:'Courier New',monospace;font-size:9px;letter-spacing:1px;
-  padding:5px 10px;border-radius:4px;cursor:pointer;transition:all .15s;}
-#skZoomReset:hover{border-color:#4a7090;color:#70a8c8;}
+  border:1px solid #501a1a;color:#aa5050;font-family:'Courier New',monospace;
+  font-size:9px;letter-spacing:2px;padding:7px 14px;border-radius:4px;
+  cursor:pointer;text-transform:uppercase;transition:all .15s;}
+.sk-reset-btn:hover{border-color:#904040;color:#e08080;}
 /* node */
 .sk-node{position:absolute;transform:translate(-50%,-50%);width:76px;
   cursor:pointer;text-align:center;transition:transform .15s;user-select:none;}
@@ -439,7 +433,7 @@ body {
 #skTooltip .tt-cost{font-size:11px;color:#f4c84a;margin-top:8px;font-weight:bold;}
 #skTooltip .tt-info{font-size:9px;color:#c06060;margin-top:4px;letter-spacing:1px;}
 /* legend */
-.sk-legend{position:absolute;bottom:90px;left:22px;display:flex;gap:20px;z-index:10;}
+.sk-legend{position:absolute;bottom:18px;left:22px;display:flex;gap:20px;z-index:10;}
 .sk-leg{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:1.5px;
   color:#3a5060;text-transform:uppercase;}
 .sk-leg-dot{width:13px;height:13px;border-radius:50%;border:2px solid;}
@@ -455,9 +449,19 @@ body {
       <div id="gameSubtitle">✦ Tower Defense ✦</div>
     </div>
     <div class="menu-btns">
+
+    <!-- Seletor de mapa com mini-preview -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;
+      margin-top:8px;width:100%;max-width:400px;">
+      <div style="font-size:9px;letter-spacing:4px;color:#607080;text-transform:uppercase;">
+        Selecionar Mapa
+      </div>
+      <div style="display:flex;gap:8px;width:100%;" id="mapBtnsMain">
+      </div>
+    </div>
       <button class="mbtn mbtn-primary" id="btnStart">⚔&nbsp;&nbsp;Iniciar</button>
-      <button class="mbtn" id="btnMultiplayer" style="background:linear-gradient(180deg,#071830,#040c18);border:2px solid #2060a0;color:#5aaeff;letter-spacing:3px;box-shadow:0 0 20px rgba(0,100,200,0.25);">🌐&nbsp;&nbsp;Multijogador</button>
-      <button class="mbtn mbtn-secondary" id="btnSkillTree" style="background:linear-gradient(180deg,#1a0e30,#0e0818);border-color:#6a3aaa;color:#d090ff;box-shadow:0 0 18px rgba(130,60,200,0.2);">✦&nbsp;&nbsp;Árvore de Skills</button>
+      <button class="mbtn" id="btnMultiplayer" style="background:linear-gradient(180deg,#071830,#040c18);border:1px solid #2060a0;color:#5aaeff;letter-spacing:3px;">🌐&nbsp;&nbsp;Multijogador</button>
+      <button class="mbtn mbtn-secondary" id="btnSkillTree" style="background:linear-gradient(180deg,#1a0e30,#0e0818);border-color:#5a2a8a;color:#c080ff;">✦&nbsp;&nbsp;Árvore de Skills</button>
       <button class="mbtn mbtn-secondary" id="btnSettings">⚙&nbsp;&nbsp;Configurações</button>
       <button class="mbtn mbtn-danger" id="btnQuit">✕&nbsp;&nbsp;Sair</button>
     </div>
@@ -521,6 +525,11 @@ body {
         <div id="mpCopyMsg" style="font-size:9px;color:#50c878;min-height:12px;"></div>
         <div style="font-size:9px;color:#4a7090;">Compartilhe este código com o outro jogador</div>
       </div>
+      <!-- Seletor de mapa MP -->
+      <div id="mpMapBox" style="display:none;flex-direction:column;align-items:center;gap:8px;">
+        <div style="font-size:9px;letter-spacing:3px;color:#607080;text-transform:uppercase;">Mapa</div>
+        <div id="mapBtnsMP" style="display:flex;gap:6px;"></div>
+      </div>
       <!-- Dificuldade (aparece quando P2 conecta) -->
       <div id="mpDiffBox" style="display:none;flex-direction:column;align-items:center;gap:10px;">
         <div style="font-size:9px;letter-spacing:4px;color:#c8a040;text-transform:uppercase;margin-top:4px;">Escolha a Dificuldade</div>
@@ -579,6 +588,13 @@ body {
   </div>
 
   <!-- Indicador MP na topbar (inicialmente oculto) -->
+  <!-- Indicador mapa atual (in-game) -->
+  <div id="mapIndicator" style="position:absolute;top:0;left:50%;transform:translateX(-50%);
+    height:52px;display:flex;align-items:center;gap:6px;pointer-events:none;
+    font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;color:#607080;">
+    <span id="mapIndicatorTxt"></span>
+  </div>
+
   <div id="mpIndicator" style="display:none;position:absolute;top:0;right:200px;height:52px;
     align-items:center;gap:8px;font-size:10px;letter-spacing:2px;color:#5aaeff;z-index:15;">
     <div id="mpP1dot" style="width:8px;height:8px;border-radius:50%;background:#4a9eff;"></div>
@@ -626,31 +642,19 @@ body {
   <!-- SKILL TREE OVERLAY -->
   <div id="skillTreeOverlay">
     <canvas id="skillBgCanvas"></canvas>
-    <!-- Viewport: recebe drag/pinch para pan+zoom -->
-    <div id="skillViewport">
-      <div id="skillCanvas">
-        <svg id="skillSvgLines" width="1500" height="870"></svg>
-        <div id="skillNodes"></div>
-      </div>
-    </div>
+    <svg id="skillSvgLines" width="1500" height="870"></svg>
+    <div id="skillNodes"></div>
     <div class="sk-header">
       <h2>✦ Árvore de Habilidades ✦</h2>
       <div class="sk-pts" id="skPtsDisplay">0 <span>pontos disponíveis</span></div>
     </div>
+    <button class="sk-btn-close" onclick="closeSkillTree()">✕ Fechar</button>
+    <button class="sk-reset-btn" onclick="resetSkillTree()">↺ Resetar</button>
     <div id="skTooltip"></div>
     <div class="sk-legend">
       <div class="sk-leg"><div class="sk-leg-dot" style="border-color:#c8a040;background:rgba(200,160,64,0.15)"></div>Desbloqueado</div>
       <div class="sk-leg"><div class="sk-leg-dot" style="border-color:#3a7aaa;background:rgba(74,138,200,0.1)"></div>Disponível</div>
       <div class="sk-leg"><div class="sk-leg-dot" style="border-color:#2a3a44;background:rgba(0,0,0,0.3)"></div>Bloqueado</div>
-    </div>
-    <!-- Bottom action bar -->
-    <div id="skBottomBar">
-      <button class="sk-btn-close" onclick="closeSkillTree()">✕&nbsp;&nbsp;Fechar</button>
-      <div id="skZoomHint">
-        🖱 Arraste para mover
-        <button id="skZoomReset" onclick="skResetView()">⌖ Centralizar</button>
-      </div>
-      <button class="sk-reset-btn" onclick="resetSkillTree()">↺&nbsp;&nbsp;Resetar Skills</button>
     </div>
   </div>
   <div id="topbar">
@@ -692,6 +696,8 @@ body {
   </div>
   <div id="towerMenu"  class="popup hidden"></div>
   <div id="upgradeMenu" class="popup hidden"></div>
+  <!-- Overlay mobile para upgrade (fora do stage, tamanho real) -->
+  <div id="mobileUpgradeOverlay"></div>
 
   <!-- GAME OVER -->
   <div id="gameOver" class="overlay hidden">
@@ -1413,6 +1419,122 @@ const ALL_WPS = [
   WAYPOINTS_B.map(([c,r])=>isoPos(c,r)),
 ];
 
+// ═══════════════════════════════════════════════════════════════
+//  MAPA 1 — "Garras do Inferno"
+//  Dois caminhos longos nas laterais que convergem no centro
+//  Infernal 2-player: longas linhas de fogo, chokepoint central
+// ═══════════════════════════════════════════════════════════════
+const MAP_GARRAS = [
+//    0  1  2  3  4  5  6  7  8  9 10 11 12 13
+  [8, 8, 5, 8, 8, 8, 8, 8, 8, 8, 8, 5, 8, 8],  // R0 ← A(col=2) B(col=11)
+  [7, 4, 5, 4, 1, 1, 4, 4, 1, 1, 4, 5, 4, 7],  // R1
+  [8, 4, 5, 4, 3, 1, 4, 4, 1, 3, 4, 5, 4, 8],  // R2
+  [8, 1, 5, 1, 4, 1, 4, 4, 1, 4, 1, 5, 1, 8],  // R3
+  [8, 4, 5, 4, 1, 4, 1, 1, 4, 1, 4, 5, 4, 8],  // R4
+  [8, 5, 5, 4, 4, 1, 4, 4, 1, 4, 4, 5, 5, 8],  // R5 A→esq B→dir
+  [8, 5, 4, 3, 1, 4, 1, 1, 4, 1, 3, 4, 5, 8],  // R6
+  [8, 5, 4, 1, 4, 1, 4, 4, 1, 4, 1, 4, 5, 8],  // R7
+  [8, 5, 4, 4, 1, 4, 3, 3, 4, 1, 4, 4, 5, 8],  // R8
+  [8, 5, 1, 4, 4, 1, 4, 4, 1, 4, 4, 1, 5, 8],  // R9
+  [8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8],  // R10 ← ambos convergem
+  [8, 4, 4, 3, 1, 4, 5, 5, 4, 1, 3, 4, 4, 8],  // R11
+  [8, 1, 3, 1, 4, 1, 5, 5, 1, 4, 1, 3, 1, 8],  // R12
+  [8, 8, 8, 8, 8, 8, 5, 5, 8, 8, 8, 8, 8, 8],  // R13 saída
+];
+const WP_GARRAS_A = [[2,-1],[2,5],[1,5],[1,10],[6,10],[6,13],[6,15]];
+const WP_GARRAS_B = [[11,-1],[11,5],[12,5],[12,10],[7,10],[7,13],[7,15]];
+
+// ═══════════════════════════════════════════════════════════════
+//  MAPA 2 — "Labirinto Cruzado"
+//  Os dois caminhos se cruzam 3 vezes indo em direções opostas
+//  Ultra-difícil: torres precisam cobrir os 3 cruzamentos
+// ═══════════════════════════════════════════════════════════════
+const MAP_LABIRINTO = [
+//    0  1  2  3  4  5  6  7  8  9 10 11 12 13
+  [8, 8, 8, 8, 5, 8, 8, 8, 8, 5, 8, 8, 8, 8],  // R0 ← A(col=4) B(col=9)
+  [8, 5, 5, 5, 5, 4, 4, 4, 4, 5, 5, 5, 5, 8],  // R1 A←esq B→dir
+  [8, 5, 4, 3, 4, 1, 3, 3, 1, 4, 3, 4, 5, 8],  // R2
+  [8, 5, 4, 1, 4, 3, 1, 1, 3, 4, 1, 4, 5, 8],  // R3
+  [8, 5, 4, 3, 1, 4, 1, 1, 4, 1, 3, 4, 5, 8],  // R4
+  [8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8],  // R5 ← CRUZAMENTO 1 (A→dir B←esq)
+  [8, 5, 4, 1, 4, 1, 3, 3, 1, 4, 1, 4, 5, 8],  // R6
+  [8, 5, 4, 3, 4, 3, 1, 1, 3, 4, 3, 4, 5, 8],  // R7
+  [8, 5, 4, 1, 1, 4, 1, 1, 4, 1, 1, 4, 5, 8],  // R8
+  [8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8],  // R9 ← CRUZAMENTO 2 (A←esq B→dir)
+  [8, 5, 4, 4, 1, 4, 3, 3, 4, 1, 4, 4, 5, 8],  // R10
+  [8, 5, 4, 1, 4, 1, 4, 4, 1, 4, 1, 4, 5, 8],  // R11
+  [8, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 8],  // R12 ← CRUZAMENTO 3 (A→dir B←esq)
+  [8, 8, 8, 8, 8, 8, 5, 5, 8, 8, 8, 8, 8, 8],  // R13 saída
+];
+const WP_LAB_A = [[4,-1],[4,1],[1,1],[1,5],[12,5],[12,9],[1,9],[1,12],[6,12],[6,15]];
+const WP_LAB_B = [[9,-1],[9,1],[12,1],[12,5],[1,5],[1,9],[12,9],[12,12],[7,12],[7,15]];
+
+// ═══════════════════════════════════════════════════════════════
+//  CATALOG DE MAPAS (selecionável pelo jogador)
+// ═══════════════════════════════════════════════════════════════
+const MAPS_CONFIG = [
+  {
+    id: 0,
+    name: 'Vale dos Slimes',
+    emoji: '🌿',
+    desc: '2 caminhos simétricos\nconvergindo ao sul',
+    badge: 'CLÁSSICO',
+    badgeColor: '#2a7a3a',
+  },
+  {
+    id: 1,
+    name: 'Garras do Inferno',
+    emoji: '⚡',
+    desc: 'Laterais longas com\nchokepoint central',
+    badge: 'INFERNAL',
+    badgeColor: '#7a2a10',
+    map: MAP_GARRAS,
+    waypointsA: WP_GARRAS_A,
+    waypointsB: WP_GARRAS_B,
+  },
+  {
+    id: 2,
+    name: 'Labirinto Cruzado',
+    emoji: '🌀',
+    desc: '3 cruzamentos — paths\nem direções opostas!',
+    badge: 'EXTREMO',
+    badgeColor: '#6a1a7a',
+    map: MAP_LABIRINTO,
+    waypointsA: WP_LAB_A,
+    waypointsB: WP_LAB_B,
+  },
+];
+
+let _currentMapIdx = 0;
+
+function loadMap(idx) {
+  const cfg = MAPS_CONFIG[idx];
+  if(!cfg) return;
+  _currentMapIdx = idx;
+
+  if(cfg.map) {
+    // Atualiza MAP em-place (const array — elementos mutáveis)
+    for(let r=0;r<ROWS;r++)
+      for(let c=0;c<COLS;c++)
+        MAP[r][c] = cfg.map[r][c];
+    // Atualiza waypoints em-place
+    WAYPOINTS_A.length=0; cfg.waypointsA.forEach(wp=>WAYPOINTS_A.push(wp));
+    WAYPOINTS_B.length=0; cfg.waypointsB.forEach(wp=>WAYPOINTS_B.push(wp));
+    // Reconstrói posições de tela para os waypoints
+    ALL_WPS[0] = WAYPOINTS_A.map(([c,r])=>isoPos(c,r));
+    ALL_WPS[1] = WAYPOINTS_B.map(([c,r])=>isoPos(c,r));
+  }
+  // Atualiza indicador in-game
+  const _mi = document.getElementById('mapIndicatorTxt');
+  if(_mi && cfg) _mi.textContent = cfg.emoji + ' ' + cfg.name;
+  // Indica mapa ativo nos botões (fallback para botões simples)
+  document.querySelectorAll('.map-select-btn').forEach((b,i)=>{
+    b.style.borderColor = i===idx ? '#f0c040' : '#1a3050';
+    b.style.background  = i===idx ? 'rgba(240,192,64,0.12)' : 'rgba(10,20,40,0.6)';
+  });
+}
+
+
 const TILE_NAMES = ["grass_clean", "grass_tufts", "grass_rocks", "rock_big", "sign", "dirt_path", "tree_big", "tree_forest", "tree_ruins"];
 const TILE_META  = {"grass_clean": {"w": 160, "h": 123}, "grass_tufts": {"w": 160, "h": 123}, "grass_rocks": {"w": 160, "h": 123}, "rock_big": {"w": 160, "h": 123}, "sign": {"w": 160, "h": 123}, "dirt_path": {"w": 160, "h": 125}, "tree_big": {"w": 192, "h": 166}, "tree_forest": {"w": 192, "h": 135}, "tree_ruins": {"w": 192, "h": 139}};
 const TILE_SETTINGS = {
@@ -1534,7 +1656,8 @@ function initState() {
   _sessionMaxDmg = 0;
   _critActivityTimer = 0;
   _mpEnemyId = 0;
-  _resetZoom(); // reseta zoom/pan ao iniciar nova partida
+  _resetZoom();
+  loadMap(_currentMapIdx); // garante que o mapa correto está carregado
   critCombo.count=0; critCombo.timer=0; critCombo.active=false; critCombo.bonusPct=0;
   resetRB();
   document.getElementById('cardSelectOverlay').style.display='none';
@@ -2064,6 +2187,12 @@ function render() {
   // Background (sem zoom — cobre o canvas inteiro)
   ctx.fillStyle='#0d1a0d';
   ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // Se há menu aberto, reposiciona para acompanhar zoom/pan
+  const _um = document.getElementById('upgradeMenu');
+  if(_um && !_um.classList.contains('hidden') && _um._positionFn) {
+    _um._positionFn();
+  }
 
   // Aplica zoom/pan para todos os elementos do mundo
   ctx.save();
@@ -3025,35 +3154,52 @@ function showUpgradeMenu(tower, sx, sy) {
   const menu=document.getElementById('upgradeMenu');
   menu.classList.remove('hidden');
 
-  // ── Posicionamento em coordenadas canvas (stage space) ──────
-  // translate(-50%,-100%) faz: left=centro visual, top=borda inferior
-  const STAGE_W  = canvas.width;        // 1500
-  const STAGE_H  = 870;                 // stage total
-  const TOPBAR_H = 56;                  // altura topbar
-  const BOT_H    = 62;                  // altura bottombar
-  const MENU_W   = 340;                 // largura do card
-  const MENU_H   = 560;                 // altura estimada (conservativo)
-  const GAP_X    = 36;
+  // ── Posicionamento em viewport-space (position:fixed) ────────
+  // Converte posição da torre (canvas coords) → viewport pixels
+  function _positionUpgradeMenu() {
+    const cRect  = canvas.getBoundingClientRect();
+    const csf    = cRect.width / canvas.width; // px canvas → viewport
+    // Posição da torre na tela (com zoom/pan aplicado)
+    const twVX = (sx * _mapZoom + _mapPanX) * csf + cRect.left;
+    const twVY = (sy * _mapZoom + _mapPanY) * csf + cRect.top;
 
-  // Torre em stage-space: sx (canvas), sy+52 (canvas+topbar)
-  const twX = sx, twY = sy + 52;
+    const vw     = window.innerWidth;
+    const vh     = window.innerHeight;
+    const isMob  = (window._gameScale||1) < 0.99;
+    const MENU_W_VP = isMob ? Math.min(vw - 144, 460) : 420; // 144 = 2×painéis
+    const MENU_H_VP = Math.min(vh * 0.85, 600);
+    const GAP    = 16;
+    const PANEL  = isMob ? 72 : 0; // largura dos painéis laterais
 
-  // X: centro do menu. Prefere direita, se não couber vai esquerda
-  let menuLeft = twX + GAP_X + MENU_W/2;
-  if(menuLeft + MENU_W/2 > STAGE_W - 8) menuLeft = twX - GAP_X - MENU_W/2;
-  menuLeft = Math.max(MENU_W/2 + 4, Math.min(menuLeft, STAGE_W - MENU_W/2 - 4));
+    // X: tenta à direita da torre; se não couber, vai à esquerda
+    let left = twVX + GAP;
+    if(left + MENU_W_VP > vw - PANEL - 4) left = twVX - MENU_W_VP - GAP;
+    left = Math.max(PANEL + 4, Math.min(left, vw - PANEL - MENU_W_VP - 4));
 
-  // Y: top CSS = borda inferior visual do menu
-  // Limite superior: top >= TOPBAR_H + MENU_H (menu não sobe acima da topbar)
-  // Limite inferior: top <= STAGE_H - BOT_H (menu não vai além do bottom)
-  let menuTop = twY - 10;
-  menuTop = Math.max(TOPBAR_H + MENU_H, Math.min(menuTop, STAGE_H - BOT_H));
+    // Y: tenta acima da torre; se não couber, vai abaixo
+    let top = twVY - MENU_H_VP - GAP;
+    if(top < 60) top = twVY + GAP;
+    top = Math.max(60, Math.min(top, vh - MENU_H_VP - 8));
 
-  menu.style.left = menuLeft + 'px';
-  menu.style.top  = menuTop  + 'px';
+    menu.style.left  = left + 'px';
+    menu.style.top   = top + 'px';
+    menu.style.width = MENU_W_VP + 'px';
+  }
+  _positionUpgradeMenu();
+  // Reposiciona se o zoom/pan mudar enquanto o menu estiver aberto
+  menu._positionFn = _positionUpgradeMenu;
 
   function rebuild() {
     menu.innerHTML='';
+    // Barra de arrastar/fechar no topo do menu fixo
+    const _closeBar = document.createElement('div');
+    _closeBar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;'
+      + 'padding:8px 12px 6px;border-bottom:1px solid #0e2030;cursor:pointer;'
+      + 'background:rgba(2,8,18,0.8);';
+    _closeBar.innerHTML = '<div style="width:36px;height:3px;background:#1a4060;border-radius:2px;"></div>'
+      + '<div style="font-size:9px;color:#2a5070;letter-spacing:2px;">FECHAR ✕</div>';
+    _closeBar.addEventListener('click', ()=>closePopups());
+    menu.appendChild(_closeBar);
     const def     = TOWER_DEFS[tower.type];
     const lvlDef  = def.levels[tower.level-1];
     const nextDef = def.levels[tower.level];
@@ -3079,29 +3225,32 @@ function showUpgradeMenu(tower, sx, sy) {
     const canCC=ccLv<UPGRADE_MAX&&gold>=nextCCCost;
     const canCD=cdLv<UPGRADE_MAX&&gold>=nextCDCost;
 
+    // Detecta mobile para usar overlay fora do stage
+    const _isMob = (window._gameScale||1) < 0.99;
     const card=document.createElement("div");
     card.className="upg-card";
-    card.style.cssText="padding:0;overflow:hidden;min-width:336px;max-width:340px;";
+    card.style.cssText="padding:0;overflow:hidden;min-width:400px;max-width:420px;";
 
+    // Funções de renderização com fontes maiores e legíveis
     const statCol=(icon,label,val,col)=>
-      `<div style="text-align:center;padding:6px 4px;border-bottom:1px solid #111a26;">
-        <div style="font-size:7.5px;color:#3a5868;letter-spacing:.8px;margin-bottom:2px;">${icon} ${label}</div>
-        <div style="font-size:17px;font-weight:bold;color:${col};line-height:1.1;">${val}</div>
+      `<div style="text-align:center;padding:10px 4px;border-bottom:1px solid #0e1e2e;">
+        <div style="font-size:10px;color:#4a7090;letter-spacing:1px;margin-bottom:4px;text-transform:uppercase;">${icon} ${label}</div>
+        <div style="font-size:22px;font-weight:900;color:${col};line-height:1;font-variant-numeric:tabular-nums;">${val}</div>
        </div>`;
 
     const statRow=(icon,lv,effectStr,cost,canBuy,action)=>
-      `<div style="display:flex;align-items:center;gap:5px;
-          background:rgba(4,10,20,0.5);border:1px solid #1a3040;border-radius:4px;
-          padding:4px 7px;margin-bottom:4px;">
-        <div style="${iconCSS(icon,20)}"></div>
-        <span style="font-size:14px;font-weight:bold;color:#c8dce8;">${lv}</span>
-        <span style="font-size:8px;color:#3a5060;">/${UPGRADE_MAX}</span>
-        <span style="font-size:8.5px;color:#5a8090;flex:1;overflow:hidden;
+      `<div style="display:flex;align-items:center;gap:8px;
+          background:rgba(4,10,20,0.6);border:1px solid #1a3040;border-radius:6px;
+          padding:8px 10px;margin-bottom:6px;min-height:40px;">
+        <div style="${iconCSS(icon,22)}flex-shrink:0;"></div>
+        <span style="font-size:17px;font-weight:bold;color:#c8dce8;flex-shrink:0;">${lv}</span>
+        <span style="font-size:10px;color:#3a5060;flex-shrink:0;">/${UPGRADE_MAX}</span>
+        <span style="font-size:11px;color:#6a9090;flex:1;overflow:hidden;
           text-overflow:ellipsis;white-space:nowrap;">${effectStr}</span>
         ${lv<UPGRADE_MAX
           ?`<button class="btn ${canBuy?"":"disabled-btn"}" data-action="${action}"
-              style="font-size:8.5px;padding:3px 7px;white-space:nowrap;flex-shrink:0;">▲◈${cost}</button>`
-          :`<span style="font-size:8px;color:#40c060;font-weight:bold;">MAX</span>`}
+              style="font-size:11px;padding:6px 10px;white-space:nowrap;flex-shrink:0;min-height:34px;">▲◈${cost}</button>`
+          :`<span style="font-size:11px;color:#40c060;font-weight:bold;flex-shrink:0;">MAX</span>`}
        </div>`;
 
     let elemGrid="";
@@ -3113,20 +3262,20 @@ function showUpgradeMenu(tower, sx, sy) {
           background:${active?e2.color+"25":"rgba(4,10,18,0.85)"};
           box-shadow:${active?`0 0 12px ${e2.color}45`:"none"};
           opacity:${active||canBuy2?1:0.38};transition:all .15s;">
-        <div style="${iconCSS(e2.icon,22)}margin:0 auto;${active?`filter:drop-shadow(0 0 4px ${e2.color});`:""}"></div>
-        <div style="font-size:7px;color:${active?e2.color:"#3a5060"};margin-top:2px;
-          font-weight:${active?"bold":"normal"}">${e2.name}</div>
+        <div style="${iconCSS(e2.icon,28)}margin:0 auto;${active?`filter:drop-shadow(0 0 6px ${e2.color});`:""}"></div>
+        <div style="font-size:9px;color:${active?e2.color:"#4a6080"};margin-top:3px;
+          font-weight:${active?"bold":"normal"};letter-spacing:.5px;">${e2.name}</div>
       </button>`;
     }
 
     card.innerHTML=`<div style="display:flex;">
       <!-- COLUNA ESQUERDA — stats -->
-      <div style="width:88px;flex-shrink:0;border-right:1px solid #1a3040;
+      <div style="width:110px;flex-shrink:0;border-right:1px solid #1a3040;
         display:flex;flex-direction:column;background:rgba(2,6,12,0.45);">
-        <div style="padding:9px 5px 7px;text-align:center;border-bottom:1px solid #111a26;">
-          ${el?`<div style="${iconCSS(el.icon,16)}margin:0 auto 3px;""></div>`:""}
-          <div style="font-size:11px;font-weight:bold;color:#c8e0f8;line-height:1.2;">${def.name}</div>
-          <div style="font-size:7.5px;color:#3a6080;letter-spacing:1.5px;margin-top:2px;">NÍV. ${tower.level}</div>
+        <div style="padding:12px 6px 10px;text-align:center;border-bottom:1px solid #0e1e2e;">
+          ${el?`<div style="${iconCSS(el.icon,20)}margin:0 auto 4px;filter:drop-shadow(0 0 6px ${el.color});"></div>`:""}
+          <div style="font-size:15px;font-weight:bold;color:#d8eeff;line-height:1.2;letter-spacing:1px;">${def.name}</div>
+          <div style="font-size:11px;color:#3a7090;letter-spacing:2px;margin-top:3px;font-weight:bold;">NÍV ${tower.level}</div>
         </div>
         ${statCol("⚔","DANO",  effDmg!=null?effDmg:effDpsMax!=null?effDpsMax+"/s":"Beam", effDmg!=null?"#f0c870":"#c060ff")}
         ${effDpsMin!=null?statCol("⚡","DPS MIN",effDpsMin+"/s","#9060d0"):""}
@@ -3138,48 +3287,67 @@ function showUpgradeMenu(tower, sx, sy) {
           <div style="${iconCSS(el.icon,28)}margin:0 auto;filter:drop-shadow(0 0 6px ${el.color});"></div>
           <div style="font-size:7.5px;color:${el.color};margin-top:4px;font-weight:bold;text-align:center;">${el.name}</div>
          </div>`:`<div style="flex:1"></div>`}
-        <button data-action="sell" style="margin:7px 6px;padding:5px 4px;border-radius:5px;
-          cursor:pointer;border:1px solid #5a1818;background:rgba(60,12,12,0.65);
-          color:#e06060;font-size:9px;font-family:inherit;transition:all .15s;">
-          ◈ Vender<br><b style="font-size:13px;">+${lvlDef.sell}</b>
+        <button data-action="sell" style="margin:8px 6px 6px;padding:8px 4px;border-radius:8px;
+          cursor:pointer;border:1px solid #6a1a1a;background:rgba(60,12,12,0.7);
+          color:#e87070;font-size:11px;font-family:inherit;transition:all .15s;width:calc(100% - 12px);">
+          ◈ Vender<br><b style="font-size:16px;color:#ff8080;">+${lvlDef.sell}</b>
         </button>
       </div>
       <!-- COLUNA DIREITA — controles -->
       <div style="flex:1;padding:10px 9px;">
         ${!nextDef
-          ?`<div style="font-size:9px;color:#40c860;text-align:center;padding:6px;
-              margin-bottom:8px;background:rgba(16,50,16,0.3);border:1px solid #2a5a2a;
-              border-radius:4px;">★ Nível Máximo</div>`
+          ?`<div style="font-size:12px;color:#40e860;text-align:center;padding:10px 6px;
+              margin-bottom:10px;background:rgba(16,50,16,0.35);border:1px solid #2a6a2a;
+              border-radius:6px;font-weight:bold;letter-spacing:2px;">★ NÍVEL MÁXIMO</div>`
           :`<button class="btn btn-up ${canUpgrade?"":"disabled-btn"}" data-action="upg"
-              style="width:100%;font-size:9.5px;padding:6px;margin-bottom:8px;">
+              style="width:100%;font-size:13px;padding:10px 6px;margin-bottom:10px;letter-spacing:1px;min-height:42px;">
               ▲ Upgrade Nv.${tower.level+1} — ◈${nextDef.upgCost}</button>`}
         ${statRow("boot",  sLv,  sLv>0?`-${speedPct}% vel`:"velocidade",       nextSCost, canS,  "speed")}
         ${statRow("sword", dLv,  dLv>0?`+${Math.round(dLv*2)}% dmg`:"dano",    nextDCost, canD,  "dmg")}
         ${statRow("gem_red", ccLv, ccLv>0?`${critPct}% chance crit`:"chance crítico", nextCCCost, canCC,"critchance")}
         ${statRow("gem_gold",cdLv, cdLv>0?`${critDmgPct}% dano crit`:"dano crítico",  nextCDCost, canCD,"critdmg")}
         <div style="border-top:1px solid #1a3040;padding-top:7px;margin-top:3px;">
-          <div style="font-size:8px;color:#3a5868;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">
-            🌟 Elemento <span style="color:#1e3040;">◈500</span></div>
+          <div style="font-size:11px;color:#4a7090;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;margin-top:4px;">
+            🌟 Elemento &nbsp;<span style="color:#4a6a40;font-weight:bold;">◈500</span></div>
           <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:5px;">
             ${elemGrid}
           </div>
           ${el?`<div style="display:flex;align-items:center;justify-content:space-between;gap:5px;">
-            <div style="font-size:8.5px;color:${el.color};flex:1;overflow:hidden;
-              text-overflow:ellipsis;white-space:nowrap;opacity:.9;">${el.desc}</div>
+            <div style="font-size:11px;color:${el.color};flex:1;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap;opacity:.9;line-height:1.3;">${el.desc}</div>
             <button data-action="elem" data-elem=""
-              style="font-size:8px;padding:2px 6px;border-radius:3px;cursor:pointer;
-                border:1px solid #4a1a1a;color:#d05050;background:rgba(24,6,6,0.8);flex-shrink:0;">✕</button>
+              style="font-size:11px;padding:4px 8px;border-radius:4px;cursor:pointer;
+                border:1px solid #5a1a1a;color:#e05050;background:rgba(24,6,6,0.8);flex-shrink:0;min-width:28px;">✕</button>
            </div>`:""}
         </div>
       </div>
     </div>`;
+
+    // Após qualquer ação, atualiza o overlay mobile
+    const _refreshMobOverlay = () => {
+      const ov = document.getElementById('mobileUpgradeOverlay');
+      if(ov && ov.style.display!=='none' && _isMob) {
+        const newClone = card.cloneNode(true);
+        newClone.style.cssText='padding:0;overflow:hidden;width:100%;max-width:none;box-sizing:border-box;';
+        // Mantém o drag handle e substitui o clone
+        const drag = ov.querySelector('div:first-child');
+        ov.innerHTML=''; if(drag) ov.appendChild(drag.cloneNode(true));
+        ov.appendChild(newClone);
+        newClone.addEventListener('click', ev=>{
+          const btn=ev.target.closest('button[data-action]');
+          if(!btn) return;
+          const orig=card.querySelector(`button[data-action='${btn.dataset.action}'][data-elem='${btn.dataset.elem||''}']`);
+          if(orig) orig.click();
+        });
+      }
+    };
 
     card.addEventListener("click", ev => {
       ev.stopPropagation();
       const btn=ev.target.closest("[data-action]");
       if(!btn) return;
       const act=btn.dataset.action;
-      if(act==="upg"&&canUpgrade){upgradeTower(tower);rebuild();}
+      if(act==="upg"&&canUpgrade){upgradeTower(tower);rebuild();setTimeout(_refreshMobOverlay,50);}
       else if(act==="speed"    &&canS) {gold-=nextSCost;  tower.speedLv      =sLv+1;  updateUI();rebuild();}
       else if(act==="dmg"      &&canD) {gold-=nextDCost;  tower.damageLv     =dLv+1;  updateUI();rebuild();}
       else if(act==="critchance"&&canCC){gold-=nextCCCost; tower.critChanceLv =ccLv+1; updateUI();rebuild();}
@@ -3201,13 +3369,47 @@ function showUpgradeMenu(tower, sx, sy) {
       }
     });
     menu.appendChild(card);
+
+    // No mobile, a posição:fixed já resolve — oculta o conteúdo
+    // in-stage (que é uma cópia fantasma) e usa só o overlay
+    if(_isMob) {
+      // Esconde o menu fixo em posição que não interfere
+      menu.style.left  = '-9999px';
+    }
+    // Mobile: espelha o card em overlay fixo fora do stage
+    if(_isMob) {
+      const ov = document.getElementById('mobileUpgradeOverlay');
+      if(ov) {
+        const clone = card.cloneNode(true);
+        clone.style.cssText = 'padding:0;overflow:hidden;width:100%;max-width:none;box-sizing:border-box;';
+        ov.innerHTML = '';
+        const drag = document.createElement('div');
+        drag.style.cssText = 'width:40px;height:4px;background:#2a4060;border-radius:2px;margin:10px auto 4px;cursor:pointer;';
+        drag.addEventListener('click', ()=>{ ov.style.display='none'; menu.classList.add('hidden'); });
+        ov.appendChild(drag);
+        ov.appendChild(clone);
+        ov.style.display = 'block';
+        clone.addEventListener('click', ev=>{
+          const btn = ev.target.closest('button[data-action]');
+          if(!btn) return;
+          const q = `button[data-action='${btn.dataset.action}']`
+            + (btn.dataset.elem!==undefined ? `[data-elem='${btn.dataset.elem}']` : '');
+          const orig = card.querySelector(q);
+          if(orig) orig.click();
+        });
+      }
+    }
   }
 
   rebuild();
 }
 function closePopups() {
   document.getElementById('towerMenu').classList.add('hidden');
-  document.getElementById('upgradeMenu').classList.add('hidden');
+  const um = document.getElementById('upgradeMenu');
+  um.classList.add('hidden');
+  um._positionFn = null;
+  const _ov = document.getElementById('mobileUpgradeOverlay');
+  if(_ov) _ov.style.display = 'none';
   selectedCell=null;
   previewRange=null;
   // mantém selectedTower para preview do range da torre selecionada
@@ -3725,96 +3927,9 @@ function showCardSelect() {
 // ═══════════════════════════════════════════════════════════════
 let _skBgAnimId = null;
 
-// ── Skill Tree Pan/Zoom ─────────────────────────────────────
-let _skPanX=0, _skPanY=0, _skZoom=1;
-const SK_ZOOM_MIN=0.45, SK_ZOOM_MAX=1.6;
-
-function _skApplyTransform() {
-  const sc = document.getElementById('skillCanvas');
-  if(sc) sc.style.transform = `translate(${_skPanX}px,${_skPanY}px) scale(${_skZoom})`;
-}
-
-function skResetView() {
-  _skPanX=0; _skPanY=0; _skZoom=1;
-  _skApplyTransform();
-}
-
-function _skInitViewport() {
-  const vp = document.getElementById('skillViewport');
-  if(!vp || vp._skEventsAttached) return;
-  vp._skEventsAttached = true;
-
-  let _drag=false, _dragSx=0, _dragSy=0, _dragPx=0, _dragPy=0;
-  let _pinching=false, _pinch0Dist=0, _pinch0Zoom=1, _pinch0PanX=0, _pinch0PanY=0;
-
-  // Mouse drag
-  vp.addEventListener('mousedown', e=>{
-    if(e.target.closest('.sk-node')) return;
-    _drag=true; _dragSx=e.clientX; _dragSy=e.clientY;
-    _dragPx=_skPanX; _dragPy=_skPanY;
-    vp.classList.add('panning'); e.preventDefault();
-  });
-  window.addEventListener('mousemove', e=>{
-    if(!_drag) return;
-    _skPanX = _dragPx + (e.clientX - _dragSx);
-    _skPanY = _dragPy + (e.clientY - _dragSy);
-    _skApplyTransform();
-  });
-  window.addEventListener('mouseup', ()=>{ _drag=false; vp.classList.remove('panning'); });
-
-  // Scroll-to-zoom
-  vp.addEventListener('wheel', e=>{
-    e.preventDefault();
-    const factor = e.deltaY < 0 ? 1.1 : 0.91;
-    const newZ = Math.max(SK_ZOOM_MIN, Math.min(SK_ZOOM_MAX, _skZoom * factor));
-    const rect = vp.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    _skPanX = mx - (mx - _skPanX) * (newZ / _skZoom);
-    _skPanY = my - (my - _skPanY) * (newZ / _skZoom);
-    _skZoom = newZ;
-    _skApplyTransform();
-  }, {passive:false});
-
-  // Touch pan + pinch-zoom
-  vp.addEventListener('touchstart', e=>{
-    if(e.touches.length === 2) {
-      _pinching=true;
-      _pinch0Dist = Math.hypot(e.touches[1].clientX-e.touches[0].clientX, e.touches[1].clientY-e.touches[0].clientY);
-      _pinch0Zoom=_skZoom; _pinch0PanX=_skPanX; _pinch0PanY=_skPanY;
-      return;
-    }
-    if(e.touches.length===1 && !e.target.closest('.sk-node')) {
-      _drag=true;
-      _dragSx=e.touches[0].clientX; _dragSy=e.touches[0].clientY;
-      _dragPx=_skPanX; _dragPy=_skPanY;
-    }
-  },{passive:true});
-  vp.addEventListener('touchmove', e=>{
-    if(_pinching && e.touches.length===2) {
-      e.preventDefault();
-      const dist=Math.hypot(e.touches[1].clientX-e.touches[0].clientX,e.touches[1].clientY-e.touches[0].clientY);
-      const newZ=Math.max(SK_ZOOM_MIN,Math.min(SK_ZOOM_MAX, _pinch0Zoom*(dist/_pinch0Dist)));
-      const rect=vp.getBoundingClientRect();
-      const mx=(e.touches[0].clientX+e.touches[1].clientX)/2-rect.left;
-      const my=(e.touches[0].clientY+e.touches[1].clientY)/2-rect.top;
-      _skPanX=mx-(mx-_pinch0PanX)*(newZ/_pinch0Zoom);
-      _skPanY=my-(my-_pinch0PanY)*(newZ/_pinch0Zoom);
-      _skZoom=newZ; _skApplyTransform(); return;
-    }
-    if(_drag && e.touches.length===1) {
-      _skPanX=_dragPx+(e.touches[0].clientX-_dragSx);
-      _skPanY=_dragPy+(e.touches[0].clientY-_dragSy);
-      _skApplyTransform();
-    }
-  },{passive:false});
-  vp.addEventListener('touchend', e=>{ if(e.touches.length<2)_pinching=false; if(e.touches.length===0)_drag=false; },{passive:true});
-}
-
 function openSkillTree() {
   const overlay = document.getElementById('skillTreeOverlay');
   overlay.classList.add('open');
-  skResetView();
-  _skInitViewport();
   _renderSkillTreeBg();
   _buildSkillTreeNodes();
   _renderSkillTreeLines();
@@ -3951,7 +4066,6 @@ function _buildSkillTreeNodes() {
       let tx=nBnd.left-bnd.left+44,ty=nBnd.top-bnd.top-10;
       if(tx+215>1500)tx=nBnd.left-bnd.left-220;
       if(ty<10)ty=nBnd.bottom-bnd.top+8;
-      if(ty+160>800)ty=nBnd.top-bnd.top-170;
       tooltip.style.left=tx+'px';tooltip.style.top=ty+'px';
       tooltip.classList.add('show');
     });
@@ -4218,6 +4332,8 @@ const MP = {
       // P2 conectou — mostrar dificuldades
       document.getElementById('mpSlotP2').style.opacity = '1';
       document.getElementById('mpDiffBox').style.display = 'flex';
+      document.getElementById('mpMapBox').style.display  = 'flex';
+      _buildMapCards('mapBtnsMP', true); // constrói mini-mapas no lobby
       document.getElementById('mpStatus').textContent = '✅ Jogador 2 conectado! Escolha a dificuldade.';
       document.getElementById('mpP2dot').style.opacity = '1';
       document.getElementById('mpP2label').style.opacity = '1';
@@ -4282,7 +4398,7 @@ const MP = {
   // HOST: inicia partida enviando dados de dificuldade ao guest
   startGame(diffData) {
     this.enabled = true;
-    this.send({type:'start', diff:diffData});
+    this.send({type:'start', diff:{...diffData, mapIdx:_currentMapIdx}});
     ['mpLobby','mpPostGameScreen'].forEach(id=>{
       const el=document.getElementById(id); if(el) el.style.display='none';
     });
@@ -4563,6 +4679,7 @@ function _mpApplyDiff(d) {
   _isInfernal = !!d.isInfernal;
   _diffId = d.id;
   activeTotalWaves = _isInfernal ? 100 : WAVES.length;
+  if(d.mapIdx !== undefined) _currentMapIdx = d.mapIdx;
   // Garante que todas as telas de menu estejam fechadas
   ['startScreen','diffScreen','mpLobby'].forEach(id=>{
     const el=document.getElementById(id);
@@ -4697,6 +4814,7 @@ function mpFechar() {
   // Reset lobby UI
   document.getElementById('mpCodigoBox').style.display='none';
   document.getElementById('mpDiffBox').style.display='none';
+  document.getElementById('mpMapBox').style.display='none';
   document.getElementById('mpStatus').textContent='';
   document.getElementById('mpSlotP2').style.opacity='0.35';
   document.getElementById('mpPainelEntrar').style.display='none';
@@ -5253,5 +5371,174 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 <script>
+
+function _mpSyncMapBtns() {
+  document.querySelectorAll('.map-select-btn').forEach((b,i)=>{
+    const active = (i % MAPS_CONFIG.length) === _currentMapIdx;
+    b.style.borderColor = active ? '#f0c040' : '#1a3050';
+    b.style.background  = active ? 'rgba(240,192,64,0.12)' : 'rgba(10,20,40,0.6)';
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+//  MINI-MAPA PREVIEW — renderiza thumbnail isométrico de cada mapa
+// ═══════════════════════════════════════════════════════════════
+function _drawMiniMap(canvas, mapData, wpA, wpB) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const COLS=14, ROWS=14;
+  const tw = W/18, th = tw*0.5;
+  // Centro isométrico
+  const ox = W/2, oy = th*3;
+
+  function mIso(c,r) {
+    return [ox+(c-r)*tw, oy+(c+r)*th];
+  }
+
+  // Cores por tile
+  const TC = {
+    0:'#1a2a12', 1:'#1e3014', 2:'#2a2a1a', 3:'#2a1a0a',
+    4:'#3a4030', 5:'#6a4a20', 6:'#143a08', 7:'#0e2806',
+    8:'#1a1010'
+  };
+
+  // Desenha tiles (back to front)
+  const draws=[];
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) draws.push({c,r});
+  draws.sort((a,b)=>(a.c+a.r)-(b.c+b.r));
+
+  for(const {c,r} of draws) {
+    const t = mapData[r][c];
+    const [sx,sy] = mIso(c,r);
+    const col = TC[t] || '#1a2a12';
+
+    ctx.beginPath();
+    ctx.moveTo(sx, sy-th);
+    ctx.lineTo(sx+tw, sy);
+    ctx.lineTo(sx, sy+th);
+    ctx.lineTo(sx-tw, sy);
+    ctx.closePath();
+
+    // Cor de preenchimento
+    if(t===5) ctx.fillStyle='#8a6030';       // caminho: marrom
+    else if(t===4) ctx.fillStyle='#485040';  // buildable: cinza-verde
+    else if(t===6||t===7) ctx.fillStyle='#1a4a10'; // árvores: verde
+    else if(t===8) ctx.fillStyle='#1a1018';  // ruínas: roxo escuro
+    else ctx.fillStyle=col;
+    ctx.fill();
+
+    // Borda fina
+    ctx.strokeStyle='rgba(0,0,0,0.3)';
+    ctx.lineWidth=0.5;
+    ctx.stroke();
+  }
+
+  // Desenha waypoints A (azul) e B (laranja)
+  const PATHS_MINI = [
+    [wpA, 'rgba(80,140,255,0.85)'],
+    [wpB, 'rgba(255,140,40,0.85)'],
+  ];
+  for(const [wps, col] of PATHS_MINI) {
+    ctx.beginPath();
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([2,2]);
+    for(let i=0;i<wps.length;i++) {
+      const [c,r] = wps[i];
+      const [sx,sy] = mIso(Math.max(0,Math.min(13,c)), Math.max(0,Math.min(13,r)));
+      if(i===0) ctx.moveTo(sx,sy); else ctx.lineTo(sx,sy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Seta de entrada
+    const [ec,er] = wps[0];
+    const [sx,sy] = mIso(Math.max(0,Math.min(13,ec)), Math.max(0,1));
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.arc(sx,sy,2.5,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function _buildMapCards(containerId, isMP) {
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  container.innerHTML = '';
+
+  const configs = [
+    {idx:0, name:'Vale',     emoji:'🌿', badge:'CLÁSSICO', bc:'#2a7a3a',
+     map: null, wpA: [[4,-1],[4,3],[6,3],[6,7],[4,7],[4,10],[6,10],[6,13],[6,15]],
+                wpB: [[9,-1],[9,3],[7,3],[7,7],[9,7],[9,10],[6,10],[6,13],[6,15]]},
+    {idx:1, name:'Garras',   emoji:'⚡', badge:'INFERNAL', bc:'#7a2a10',
+     map: null, wpA: WP_GARRAS_A, wpB: WP_GARRAS_B},
+    {idx:2, name:'Labirinto',emoji:'🌀', badge:'EXTREMO',  bc:'#6a1a7a',
+     map: null, wpA: WP_LAB_A,   wpB: WP_LAB_B},
+  ];
+  // Original map data from MAP array
+  configs[0].mapData = MAP.map(r=>[...r]);
+  configs[1].mapData = MAP_GARRAS;
+  configs[2].mapData = MAP_LABIRINTO;
+
+  configs.forEach(cfg => {
+    const card = document.createElement('div');
+    card.className = 'map-select-btn';
+    const isActive = cfg.idx === _currentMapIdx;
+    card.style.cssText = `
+      flex:1;padding:6px 4px 8px;cursor:pointer;
+      background:${isActive?'rgba(240,192,64,0.12)':'rgba(10,20,40,0.6)'};
+      border:1.5px solid ${isActive?'#f0c040':'#1a3050'};
+      border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:4px;
+      font-family:'Courier New',monospace;color:#c8d8e8;transition:all .15s;`;
+
+    // Badge
+    const badge = document.createElement('div');
+    badge.style.cssText = `font-size:7px;letter-spacing:2px;padding:2px 6px;
+      border-radius:3px;background:${cfg.bc};color:#fff;margin-bottom:2px;`;
+    badge.textContent = cfg.badge;
+    card.appendChild(badge);
+
+    // Mini-mapa canvas
+    const canv = document.createElement('canvas');
+    canv.width=80; canv.height=54;
+    canv.style.cssText='border-radius:4px;display:block;';
+    card.appendChild(canv);
+    setTimeout(()=>_drawMiniMap(canv, cfg.mapData, cfg.wpA, cfg.wpB), 50);
+
+    // Nome
+    const nm = document.createElement('div');
+    nm.style.cssText='font-size:10px;font-weight:bold;margin-top:2px;';
+    nm.textContent = cfg.emoji+' '+cfg.name;
+    card.appendChild(nm);
+
+    card.addEventListener('click', ()=>{
+      loadMap(cfg.idx);
+      if(isMP) _mpSyncMapBtns();
+      _buildMapCards(containerId, isMP); // re-render to update active
+    });
+    container.appendChild(card);
+  });
+}
+
+// Inicializa os cards quando DOM está pronto
+document.addEventListener('DOMContentLoaded', ()=>{
+  _buildMapCards('mapBtnsMain', false);
+});
+
+// Constrói cards no lobby MP quando solicitado
+const _origMpCriarSala = window.mpCriarSala;
+window.mpCriarSala = async function() {
+  await _origMpCriarSala();
+  // Os cards do lobby serão construídos quando P2 conectar
+};
+
+// Reconstrói cards MP quando P2 conecta (mostra mpMapBox)
+const _origP2Connected = MP && MP._onP2Connect;
+function _buildMPMapCards() {
+  _buildMapCards('mapBtnsMP', true);
+}
+
 </script>
 </html>
