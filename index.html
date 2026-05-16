@@ -262,17 +262,17 @@ body {
 }
 .menu-btns {
   display:flex; flex-direction:column;
-  gap:14px; z-index:10; align-items:center;
+  gap:18px; z-index:10; align-items:center;
 }
 .mbtn {
-  width:300px; padding:18px 0;
+  width:380px; padding:22px 0;
   font-family:'Courier New',monospace;
-  font-size:15px; font-weight:bold;
-  letter-spacing:4px; text-transform:uppercase;
-  border-radius:6px; cursor:pointer;
+  font-size:19px; font-weight:bold;
+  letter-spacing:5px; text-transform:uppercase;
+  border-radius:8px; cursor:pointer;
   transition:all .18s; border:none;
   position:relative; overflow:hidden;
-  box-shadow:0 4px 16px rgba(0,0,0,0.4);
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);
 }
 .mbtn::before {
   content:''; position:absolute; inset:0;
@@ -373,26 +373,27 @@ body {
 .sk-pts span{font-size:12px;color:#8aa0b0;letter-spacing:3px;vertical-align:middle;margin-left:6px;}
 /* Bottom action bar — always visible, never blocks nodes */
 #skBottomBar{
-  position:absolute;bottom:0;left:0;right:0;z-index:20;height:64px;
-  background:linear-gradient(0deg,rgba(2,4,8,0.97),rgba(2,4,8,0.85));
-  border-top:1px solid #1a3050;
+  position:absolute;bottom:0;left:0;right:0;z-index:20;height:80px;
+  background:linear-gradient(0deg,rgba(2,4,8,0.98),rgba(2,4,8,0.88));
+  border-top:2px solid #1a3050;
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;gap:12px;
-  box-shadow:0 -4px 20px rgba(0,0,0,0.7);
+  padding:0 28px;gap:16px;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.8);
 }
 .sk-btn-close{
   background:linear-gradient(180deg,#0e2038,#081020);
   border:2px solid #2a5080;color:#80b8e0;font-family:'Courier New',monospace;
-  font-size:13px;font-weight:bold;letter-spacing:3px;padding:13px 28px;border-radius:6px;
+  font-size:16px;font-weight:bold;letter-spacing:4px;padding:17px 38px;border-radius:8px;
   cursor:pointer;text-transform:uppercase;transition:all .18s;
-  box-shadow:0 0 12px rgba(40,100,160,0.2);}
-.sk-btn-close:hover{border-color:#5a9ad0;color:#c0e8ff;box-shadow:0 0 20px rgba(74,138,200,0.45);}
+  box-shadow:0 0 14px rgba(40,100,160,0.25);}
+.sk-btn-close:hover{border-color:#5a9ad0;color:#c0e8ff;box-shadow:0 0 26px rgba(74,138,200,0.5);}
 .sk-reset-btn{
   background:linear-gradient(180deg,#2a0e0e,#180808);
-  border:2px solid #602020;color:#c06060;font-family:'Courier New',monospace;
-  font-size:11px;font-weight:bold;letter-spacing:2px;padding:13px 22px;border-radius:6px;
-  cursor:pointer;text-transform:uppercase;transition:all .18s;}
-.sk-reset-btn:hover{border-color:#a04040;color:#f09090;box-shadow:0 0 16px rgba(180,40,40,0.35);}
+  border:2px solid #702020;color:#d07070;font-family:'Courier New',monospace;
+  font-size:15px;font-weight:bold;letter-spacing:3px;padding:17px 32px;border-radius:8px;
+  cursor:pointer;text-transform:uppercase;transition:all .18s;
+  box-shadow:0 0 12px rgba(160,40,40,0.2);}
+.sk-reset-btn:hover{border-color:#b04040;color:#ffaaaa;box-shadow:0 0 22px rgba(200,50,50,0.4);}
 /* zoom hint */
 #skZoomHint{font-size:9px;letter-spacing:2px;color:#2a4a60;text-transform:uppercase;
   display:flex;align-items:center;gap:10px;}
@@ -438,7 +439,7 @@ body {
 #skTooltip .tt-cost{font-size:11px;color:#f4c84a;margin-top:8px;font-weight:bold;}
 #skTooltip .tt-info{font-size:9px;color:#c06060;margin-top:4px;letter-spacing:1px;}
 /* legend */
-.sk-legend{position:absolute;bottom:74px;left:22px;display:flex;gap:20px;z-index:10;}
+.sk-legend{position:absolute;bottom:90px;left:22px;display:flex;gap:20px;z-index:10;}
 .sk-leg{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:1.5px;
   color:#3a5060;text-transform:uppercase;}
 .sk-leg-dot{width:13px;height:13px;border-radius:50%;border:2px solid;}
