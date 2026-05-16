@@ -1119,22 +1119,22 @@ const SKILL_NODES = [
   // T4
   {id:'arch_multi3', x:118,y:292, name:'Salva Tripla',    icon:'🌊', desc:'Arqueiro ataca 3 inimigos diferentes\nsimultaneamente.',            cost:3, type:'archer', req:['arch_multi2']},
   {id:'arch_range2', x:100,y:452, name:'Olho de Águia',   icon:'🔭', desc:'+25% de alcance adicional.',     cost:2, type:'archer', req:['arch_pierce']},
-  {id:'arch_crit',   x:120,y:602, name:'Ponto Crítico',   icon:'💥', desc:'20% de chance de acerto crítico\n(2× de dano).',                   cost:3, type:'archer', req:['arch_dmg_e']},
+  {id:'arch_crit',   x:120,y:602, name:'Ponto Crítico',   icon:'💥', desc:'20% de chance de acerto crítico\n(4× de dano).',                   cost:3, type:'archer', req:['arch_dmg_e']},
   // T5
   {id:'arch_multi4', x:52, y:208, name:'Tempestade',      icon:'⛈', desc:'Arqueiro ataca 4 inimigos diferentes\nsimultaneamente.',            cost:4, type:'archer', req:['arch_multi3']},
 
   // ── CANHÃO (direita) ──────────────────────────────────────────
   // T1
-  {id:'can_dmg_a',   x:955,y:350, name:'Calibre I',       icon:'💢', desc:'+1% de dano do Canhão por rank.\nMáx: 5 ranks — total +5%.',       costPerRank:1, maxRank:5, type:'stack-cannon', req:['root']},
+  {id:'can_dmg_a',   x:955,y:350, name:'Calibre I',       icon:'💢', desc:'+1.5% de dano do Canhão por rank.\nMáx: 5 ranks — total +7.5%.',       costPerRank:1, maxRank:5, type:'stack-cannon', req:['root']},
   {id:'can_range1',  x:982,y:504, name:'Artilharia',      icon:'🎯', desc:'+25% de alcance do Canhão.',     cost:1, type:'cannon', req:['root']},
   // T2
   {id:'can_dmg_b',   x:1108,y:268,name:'Calibre II',      icon:'💢', desc:'+1% de dano do Canhão por rank.\nMáx: 5 ranks.',                   costPerRank:1, maxRank:5, type:'stack-cannon', req:['can_dmg_a']},
-  {id:'can_splash1', x:1142,y:448,name:'Detonação',       icon:'🔥', desc:'+35% de área de splash.',        cost:1, type:'cannon', req:['can_range1']},
+  {id:'can_splash1', x:1142,y:448,name:'Detonação',       icon:'🔥', desc:'+35% de área de splash.\nSe Nv.3: splash total ≈ 2× tiles.',        cost:1, type:'cannon', req:['can_range1']},
   {id:'can_dmg_c',   x:1112,y:596,name:'Calibre III',     icon:'💢', desc:'+1% de dano do Canhão por rank.\nMáx: 5 ranks.',                   costPerRank:1, maxRank:5, type:'stack-cannon', req:['can_range1']},
   // T3
   {id:'can_dmg_d',   x:1250,y:208,name:'Calibre IV',      icon:'💢', desc:'+1% de dano do Canhão por rank.\nMáx: 5 ranks.',                   costPerRank:1, maxRank:5, type:'stack-cannon', req:['can_dmg_b']},
   {id:'can_multi2',  x:1268,y:352,name:'Duplo Tiro',      icon:'💥', desc:'Canhão atira em 2 inimigos diferentes\nsimultaneamente.',           cost:2, type:'cannon', req:['can_dmg_b','can_splash1']},
-  {id:'can_burn',    x:1282,y:484,name:'Napalm',          icon:'🌋', desc:'Explosões queimam inimigos\npor 2 segundos (15 dmg/s).',            cost:2, type:'cannon', req:['can_splash1']},
+  {id:'can_burn',    x:1282,y:484,name:'Napalm',          icon:'🌋', desc:'Explosões queimam inimigos\npor 2.5 segundos (30 dmg/s).',            cost:2, type:'cannon', req:['can_splash1']},
   {id:'can_dmg_e',   x:1252,y:636,name:'Calibre V',       icon:'💢', desc:'+1% de dano do Canhão por rank.\nMáx: 5 ranks.',                   costPerRank:1, maxRank:5, type:'stack-cannon', req:['can_dmg_c']},
   // T4
   {id:'can_multi3',  x:1382,y:292,name:'Barragem',        icon:'💣', desc:'Canhão atira em 3 inimigos diferentes\nsimultaneamente.',           cost:3, type:'cannon', req:['can_multi2']},
@@ -1149,7 +1149,7 @@ const SKILL_NODES = [
   {id:'mage_range1', x:822,y:322, name:'Foco',            icon:'🔮', desc:'+30% de alcance do Mago.',        cost:1, type:'mage', req:['root']},
   // T2
   {id:'mage_dmg_b',  x:594,y:216, name:'Cristal II',      icon:'💎', desc:'+1% de DPS do Mago por rank.\nMáx: 5 ranks.',                      costPerRank:1, maxRank:5, type:'stack-mage',   req:['mage_dmg_a']},
-  {id:'mage_dps1',   x:738,y:202, name:'Mana Pura',       icon:'⚡', desc:'+35% de DPS do raio arcano.',    cost:2, type:'mage', req:['mage_dmg_a','mage_range1']},
+  {id:'mage_dps1',   x:738,y:202, name:'Mana Pura',       icon:'⚡', desc:'+35% de DPS máximo do raio arcano.\nEscala sobre o nível da torre.',    cost:2, type:'mage', req:['mage_dmg_a','mage_range1']},
   {id:'mage_slow',   x:886,y:202, name:'Campo Arcano',    icon:'🌀', desc:'Inimigos próximos ao Mago\nficam 30% mais lentos.',                cost:2, type:'mage', req:['mage_range1']},
   {id:'mage_dmg_c',  x:960,y:216, name:'Cristal III',     icon:'💎', desc:'+1% de DPS do Mago por rank.\nMáx: 5 ranks.',                      costPerRank:1, maxRank:5, type:'stack-mage',   req:['mage_range1']},
   // T3
@@ -1199,11 +1199,11 @@ const SKILL_CONNECTIONS = [
 
 // ─── ELEMENT SYSTEM ───────────────────────────────────────────
 const ELEMENTS = {
-  ice:     {icon:'ice',      name:'Gelo',    color:'#60c8ff', glow:'rgba(96,200,255,0.6)',  cost:800, desc:'Congela: -50% vel por 2.5s'},
-  water:   {icon:'water',    name:'Água',    color:'#40a8e0', glow:'rgba(64,168,224,0.55)', cost:800, desc:'Enfraquece: -30% armadura por 3s'},
-  fire:    {icon:'fire',     name:'Fogo',    color:'#ff7030', glow:'rgba(255,112,48,0.6)',  cost:800, desc:'Queima: 12 dano/s por 3s (2× pilhas)'},
-  poison:  {icon:'poison',   name:'Veneno',  color:'#60d060', glow:'rgba(96,208,96,0.55)', cost:800, desc:'Venena: 6 dano/s por 5s (3× pilhas)'},
-  lightning:{icon:'lightning',name:'Raio',   color:'#f0e040', glow:'rgba(240,224,64,0.65)',cost:800, desc:'Corrente: 60% dano ao inimigo mais próximo'},
+  ice:     {icon:'ice',      name:'Gelo',    color:'#60c8ff', glow:'rgba(96,200,255,0.6)',  cost:500, desc:'Congela: -50% vel por 2.5s'},
+  water:   {icon:'water',    name:'Água',    color:'#40a8e0', glow:'rgba(64,168,224,0.55)', cost:500, desc:'Enfraquece: -30% armadura por 3s'},
+  fire:    {icon:'fire',     name:'Fogo',    color:'#ff7030', glow:'rgba(255,112,48,0.6)',  cost:500, desc:'Queima: 12 dano/s por 3s (2× pilhas)'},
+  poison:  {icon:'poison',   name:'Veneno',  color:'#60d060', glow:'rgba(96,208,96,0.55)', cost:500, desc:'Venena: 6 dano/s por 5s (3× pilhas)'},
+  lightning:{icon:'lightning',name:'Raio',   color:'#f0e040', glow:'rgba(240,224,64,0.65)',cost:500, desc:'Corrente: 60% dano ao inimigo mais próximo'},
 };
 const ELEM_SPEED_COSTS = [0, ...Array.from({length:50}, (_,i) => Math.round(80  * Math.pow(1.08, i)))];
 const ELEM_AREA_COSTS  = [0, ...Array.from({length:50}, (_,i) => Math.round(85  * Math.pow(1.08, i)))];
@@ -1254,8 +1254,8 @@ const SK = {
 
   _stack(ids){ return ids.reduce((s,id)=>s+(this.ranks.get(id)||0),0)*0.01; },
 
-  getArcherDmgMult(){ return 1+this._stack(['arch_dmg_a','arch_dmg_b','arch_dmg_c','arch_dmg_d','arch_dmg_e']); },
-  getCannonDmgMult(){ return 1+this._stack(['can_dmg_a','can_dmg_b','can_dmg_c','can_dmg_d','can_dmg_e']); },
+  getArcherDmgMult(){ return 1+this._stack(['arch_dmg_a','arch_dmg_b','arch_dmg_c','arch_dmg_d','arch_dmg_e'])*1.5; },
+  getCannonDmgMult(){ return 1+this._stack(['can_dmg_a','can_dmg_b','can_dmg_c','can_dmg_d','can_dmg_e'])*1.5; },
   getMageDpsMult(){
     let m=1+this._stack(['mage_dmg_a','mage_dmg_b','mage_dmg_c','mage_dmg_d','mage_dmg_e']);
     if(this.unlocked.has('mage_dps1')) m*=1.35;
@@ -1318,20 +1318,28 @@ const TOWER_DEFS = {
     name:'Mago', emoji:'🔮', cost:175, range:2.0, isBeam:true,
     levels:[
       {img:'mage', sc:0.37, ox:0, oy:18.5,
-       beamDpsMin:2, beamDpsMax:75, beamDur:3.0, cooldownAfter:1.5, sell:90}
+       beamDpsMin:2,  beamDpsMax:35,  beamDur:3.0, cooldownAfter:1.5, sell:90},
+      {img:'mage', sc:0.37, ox:0, oy:18.5,
+       beamDpsMin:5,  beamDpsMax:90,  beamDur:3.0, cooldownAfter:1.2, sell:330,  upgCost:500},
+      {img:'mage', sc:0.37, ox:0, oy:18.5,
+       beamDpsMin:12, beamDpsMax:220, beamDur:3.5, cooldownAfter:0.8, sell:850,  upgCost:1100},
     ]
   },
   archer: {
     name:'Arqueiro', emoji:'🏹', cost:100, range:1.6,
     levels:[
-      {dmg:12, rate:1.4, img:'archer1', sc:0.57, ox:-1.4, oy:15.6, sell:60},
-      {dmg:26, rate:0.95, img:'archer2', sc:0.74, ox:0, oy:19.9, upgCost:150, sell:135},
+      {dmg:12,  rate:1.40, img:'archer1', sc:0.57, ox:-1.4, oy:15.6, sell:60},
+      {dmg:26,  rate:0.95, img:'archer2', sc:0.74, ox:0, oy:19.9, upgCost:150,  sell:135},
+      {dmg:72,  rate:0.72, img:'archer2', sc:0.74, ox:0, oy:19.9, upgCost:350,  sell:280},
+      {dmg:185, rate:0.52, img:'archer2', sc:0.74, ox:0, oy:19.9, upgCost:850,  sell:690},
     ]
   },
   cannon: {
     name:'Canhão', emoji:'💣', cost:200, range:1.4,
     levels:[
-      {dmg:48,  rate:3.0, img:'cannon', sc:1.52, ox:0, oy:56.2, splash:0.9, sell:120},
+      {dmg:150, rate:2.5, img:'cannon', sc:1.52, ox:0, oy:56.2, splash:1.0, sell:120},
+      {dmg:400, rate:2.0, img:'cannon', sc:1.52, ox:0, oy:56.2, splash:1.2, upgCost:400, sell:300},
+      {dmg:950, rate:1.6, img:'cannon', sc:1.52, ox:0, oy:56.2, splash:1.5, upgCost:900, sell:650},
     ]
   }
 };
@@ -1400,7 +1408,7 @@ let waveQueue, waveTimer, waveSpawnIdx, wavePending;
 
 function initState() {
   lives = 20 + (SK.has('extra_lives') ? 5 : 0);
-  gold  = 300 + (window._diffBonusGold||0) + (MP.enabled ? 0 : (SK.has('start_gold') ? 150 : 0));
+  gold  = 300 + (window._diffBonusGold||0) + (SK.has('start_gold') ? 150 : 0);
   waveNum=0; gameSpeed=1; paused=false; state='idle';
   enemies=[]; projectiles=[]; particles=[]; towers=[];
   towerGrid=Array.from({length:ROWS},()=>new Array(COLS).fill(null));
@@ -1409,6 +1417,8 @@ function initState() {
   totalDmgDealt=0;
   _skPtsAtStart = SK.points;
   damageNumbers = [];
+  _sessionMaxDmg = 0;
+  _critActivityTimer = 0;
   critCombo.count=0; critCombo.timer=0; critCombo.active=false; critCombo.bonusPct=0;
   resetRB();
   document.getElementById('cardSelectOverlay').style.display='none';
@@ -1685,43 +1695,68 @@ function drawProjectile(p) {
       ctx.restore();
     }
     ctx.save(); ctx.translate(cx,cy); ctx.rotate(ang);
-    // glow
-    const gG=ctx.createRadialGradient(7,0,0,7,0,10);
-    gG.addColorStop(0,'rgba(255,240,160,0.65)'); gG.addColorStop(1,'rgba(255,200,80,0)');
-    ctx.fillStyle=gG; ctx.beginPath(); ctx.arc(7,0,10,0,Math.PI*2); ctx.fill();
-    // shaft
-    ctx.fillStyle='#3a2410'; ctx.fillRect(-9,-1,16,2);
-    ctx.fillStyle='#7a4a20'; ctx.fillRect(-9,-1,16,1);
-    ctx.fillStyle='#5a3018'; ctx.fillRect(5,-1,2,2);
+    // Cor do elemento na flecha
+    const _ae = p.element ? ELEMENTS[p.element] : null;
+    const _ac = _ae ? _ae.color : '#ffea80';
+    // glow (elemento ou padrão)
+    const gG=ctx.createRadialGradient(7,0,0,7,0,12);
+    gG.addColorStop(0,_ac+'cc'); gG.addColorStop(1,_ac+'00');
+    ctx.fillStyle=gG; ctx.beginPath(); ctx.arc(7,0,12,0,Math.PI*2); ctx.fill();
+    // shaft com cor do elemento
+    ctx.fillStyle=_ae ? _ae.color+'55' : '#3a2410';
+    ctx.fillRect(-9,-1,16,2);
+    ctx.fillStyle=_ae ? _ae.color : '#7a4a20';
+    ctx.fillRect(-9,-1,16,1);
+    ctx.fillStyle=_ae ? _ae.color+'aa' : '#5a3018';
+    ctx.fillRect(5,-1,2,2);
     // arrowhead
     ctx.fillStyle='#1a1820';
     ctx.beginPath(); ctx.moveTo(7,-3.2); ctx.lineTo(12,0); ctx.lineTo(7,3.2); ctx.lineTo(6,0); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#e8eef4';
+    ctx.fillStyle=_ac;
     ctx.beginPath(); ctx.moveTo(7,-2.4); ctx.lineTo(11,0); ctx.lineTo(7,2.4); ctx.lineTo(6.5,0); ctx.closePath(); ctx.fill();
     ctx.fillStyle='#ffffff';
     ctx.beginPath(); ctx.moveTo(7,-2.0); ctx.lineTo(10.4,0); ctx.lineTo(7.4,-0.2); ctx.closePath(); ctx.fill();
-    // fletching
-    ctx.fillStyle='#d04040';
+    // fletching com cor do elemento
+    ctx.fillStyle=_ae ? _ae.color : '#d04040';
     ctx.beginPath(); ctx.moveTo(-9,-1); ctx.lineTo(-5,-3.5); ctx.lineTo(-3,-1); ctx.closePath(); ctx.fill();
     ctx.beginPath(); ctx.moveTo(-9,1); ctx.lineTo(-5,3.5); ctx.lineTo(-3,1); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#ffeeee';
+    ctx.fillStyle=_ae ? '#ffffff' : '#ffeeee';
     ctx.fillRect(-8,-3,1.2,1.2); ctx.fillRect(-8,1.8,1.2,1.2);
     ctx.fillStyle='#1a0e08'; ctx.fillRect(-10,-1,1.5,2);
+    // Aura do elemento na ponta
+    if(_ae) {
+      ctx.globalCompositeOperation='screen';
+      ctx.globalAlpha=0.7;
+      const aG=ctx.createRadialGradient(10,0,0,10,0,8);
+      aG.addColorStop(0,_ae.color); aG.addColorStop(1,_ae.color+'00');
+      ctx.fillStyle=aG; ctx.beginPath(); ctx.arc(10,0,8,0,Math.PI*2); ctx.fill();
+      ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=1;
+    }
     ctx.restore();
   } else if(p.kind==='fireball') {
     drawFireball(p);
   } else {
-    // Cannonball — bola de ferro quente
+    // Cannonball — cor do elemento ou ferro incandescente padrão
+    const _ce = p.element ? ELEMENTS[p.element] : null;
+    const _cc = _ce ? _ce.color : '#ff5020';
     ctx.save();
-    ctx.fillStyle='rgba(255,140,40,0.18)';
-    ctx.beginPath(); ctx.arc(p.x,p.y,10,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='rgba(255,200,80,0.25)';
-    ctx.beginPath(); ctx.arc(p.x,p.y,7,0,Math.PI*2); ctx.fill();
+    // Glow externo
+    const cg1=ctx.createRadialGradient(p.x,p.y,4,p.x,p.y,13);
+    cg1.addColorStop(0,_cc+'44'); cg1.addColorStop(1,_cc+'00');
+    ctx.fillStyle=cg1;
+    ctx.beginPath(); ctx.arc(p.x,p.y,13,0,Math.PI*2); ctx.fill();
+    // Glow médio
+    const cg2=ctx.createRadialGradient(p.x,p.y,2,p.x,p.y,8);
+    cg2.addColorStop(0,_cc+'66'); cg2.addColorStop(1,_cc+'00');
+    ctx.fillStyle=cg2;
+    ctx.beginPath(); ctx.arc(p.x,p.y,8,0,Math.PI*2); ctx.fill();
+    // Núcleo de ferro
     ctx.fillStyle='#1a1a22';
     ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#ff5020';
+    // Ponto quente
+    ctx.fillStyle=_cc;
     ctx.beginPath(); ctx.arc(p.x-1.3,p.y-1.3,2.2,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#fff4a0';
+    ctx.fillStyle='#ffffff';
     ctx.beginPath(); ctx.arc(p.x-2,p.y-2,0.9,0,Math.PI*2); ctx.fill();
     ctx.strokeStyle='#000'; ctx.lineWidth=0.8;
     ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.stroke();
@@ -1873,6 +1908,8 @@ let _skPtsAtStart    = 0;
 
 // ── Floating Damage Numbers ───────────────────────────────────
 let damageNumbers = [];
+let _critActivityTimer = 0;  // dimmer de não-crits
+let _sessionMaxDmg = 0;      // maior acerto crítico da sessão
 const critCombo = { count:0, timer:0, active:false, bonusPct:0 };
 
 // ── Run Bonuses (RB) — acumulam durante a partida via cards ──
@@ -2167,7 +2204,7 @@ function updateTowers(dt) {
         const dps=SK.getMageDps(rawDps)*RB.mageDps*dmgLvBonus;
         const bt=b.target;
         const _beamDmg = dps*(1-(ENEMY_DEFS[bt.type].armor||0))*dt;
-        bt.hp -= _beamDmg; totalDmgDealt += _beamDmg;
+        if(!MP.enabled||MP.isHost){bt.hp-=_beamDmg;totalDmgDealt+=_beamDmg;}
         bt.flash=Math.max(bt.flash||0,0.04);
         // Número de dano do raio (a cada 0.25s para não spammar)
         if(!b._numT) b._numT=0; if(!b._numDmg) b._numDmg=0;
@@ -2182,11 +2219,13 @@ function updateTowers(dt) {
         if(SK.has('mage_chain')&&!bt.dead){
           let ct=null,cd2=Infinity;
           for(const e of enemies){if(e===bt||e.dead)continue;const cd=Math.sqrt((e.x-bt.x)**2+(e.y-bt.y)**2);if(cd<RTW*1.5&&cd<cd2){ct=e;cd2=cd;}}
-          if(ct){ct.hp-=dps*0.6*(1-(ENEMY_DEFS[ct.type].armor||0))*dt;ct.flash=Math.max(ct.flash||0,0.06);
-            if(ct.hp<=0&&!ct.dead){ct.dead=true;gold+=ENEMY_DEFS[ct.type].reward;spawnDeathParticles(ct);updateUI();}
+          if(ct){
+            if(!MP.enabled||MP.isHost){ct.hp-=dps*0.35*(1-(ENEMY_DEFS[ct.type].armor||0))*dt;}
+            ct.flash=Math.max(ct.flash||0,0.06);
+            if((!MP.enabled||MP.isHost)&&ct.hp<=0&&!ct.dead){ct.dead=true;gold+=ENEMY_DEFS[ct.type].reward;spawnDeathParticles(ct);updateUI();}
             if(Math.random()<0.3)particles.push({x:ct.x+(Math.random()-0.5)*8,y:ct.y-6,vx:(Math.random()-0.5)*40,vy:-30,life:0.3,lifeMax:0.3,color:'#c060ff',r:1.8,isPlasma:true});}
         }
-        if(bt.hp<=0&&!bt.dead){bt.dead=true;gold+=ENEMY_DEFS[bt.type].reward;spawnDeathParticles(bt);updateUI();}
+        if((!MP.enabled||MP.isHost)&&bt.hp<=0&&!bt.dead){bt.dead=true;gold+=ENEMY_DEFS[bt.type].reward;spawnDeathParticles(bt);updateUI();}
         return !bt.dead;
       });
 
@@ -2231,7 +2270,7 @@ function updateTowers(dt) {
         // Crit: skill tree base + chance do nível da torre + multiplicador
         const towerCritChance = (t.type==="archer"&&SK.unlocked.has("arch_crit")?0.20:0)
                               + (t.critChanceLv||0)*0.01;
-        const towerCritMult   = 2.0 + (t.critDmgLv||0)*0.03;
+        const towerCritMult   = 4.0 + (t.critDmgLv||0)*0.03; // +200% crit
         if(towerCritChance>0&&Math.random()<towerCritChance){ baseDmg*=towerCritMult; isCritShot=true; }
         if(critCombo.active) baseDmg *= 1 + critCombo.bonusPct/100;
         const baseSplash = t.type==="cannon" ? SK.getCannonSplash(lvlDef.splash||0)*RB.cannonSplash : (lvlDef.splash||0);
@@ -2239,8 +2278,8 @@ function updateTowers(dt) {
           target,dmg:baseDmg,speed:280,kind,splash:baseSplash,dead:false,
           isPierce:t.type==="archer"&&(SK.unlocked.has("arch_pierce")||RB.archerPierce),
           isBurn:  t.type==="cannon"&&(SK.unlocked.has("can_burn")||RB.extraBurnDps>0),
-          burnDps: SK.unlocked.has("can_burn") ? 15 : (RB.extraBurnDps||0),
-          burnDur: SK.unlocked.has("can_burn") ? 2.0 : (RB.extraBurnDur||0),
+          burnDps: SK.unlocked.has("can_burn") ? 30 : (RB.extraBurnDps||0),
+          burnDur: SK.unlocked.has("can_burn") ? 2.5 : (RB.extraBurnDur||0),
           element:t.element, isCrit:isCritShot});
       }
       const speedBonus = 1 - Math.min((t.speedLv||0) * 0.012, 0.65); // até -60% no nível 50
@@ -2259,20 +2298,24 @@ function spawnDamageNumber(x, y, value, type='normal', customText=null) {
   const isCrit  = type==='crit';
   const isCombo = type==='combo';
   const isDot   = type==='dot';
+  // Detecta top damage: maior crítico da sessão
+  let isTopDmg = false;
+  if(isCrit && value > _sessionMaxDmg) { _sessionMaxDmg = value; isTopDmg = true; }
   damageNumbers.push({
     x, y,
-    vx: isCombo ? 0 : (Math.random()-0.5)*(isCrit ? 40 : 22),
-    vy: isCrit ? -110 : isCombo ? -80 : isDot ? -32 : -72,
-    value, type, customText,
-    life:    isCombo ? 1.9 : isCrit ? 1.4 : isDot ? 0.65 : 1.0,
-    lifeMax: isCombo ? 1.9 : isCrit ? 1.4 : isDot ? 0.65 : 1.0,
+    vx: isCombo ? 0 : isTopDmg ? 0 : (Math.random()-0.5)*(isCrit ? 45 : 22),
+    vy: isTopDmg ? -140 : isCrit ? -115 : isCombo ? -80 : isDot ? -32 : -72,
+    value, type, customText, isTopDmg,
+    life:    isCombo?1.9:isTopDmg?1.8:isCrit?1.5:isDot?0.65:1.0,
+    lifeMax: isCombo?1.9:isTopDmg?1.8:isCrit?1.5:isDot?0.65:1.0,
     _born: true,
   });
 }
 
-function _registerCrit(x, y) {
+function _registerCrit(x, y, value) {
   critCombo.count++;
   critCombo.timer = 3.5;
+  _critActivityTimer = 2.0; // ativa dimmer por 2s
   if(critCombo.count >= 5) {
     critCombo.active  = true;
     critCombo.bonusPct = Math.min((critCombo.count - 4) * 5, 50);
@@ -2284,10 +2327,11 @@ function _registerCrit(x, y) {
 }
 
 function updateDamageNumbers(dt) {
+  if(_critActivityTimer>0) _critActivityTimer=Math.max(0,_critActivityTimer-dt);
   for(const dn of damageNumbers) {
     dn.x  += dn.vx * dt;
     dn.y  += dn.vy * dt;
-    dn.vy += 38 * dt; // leve gravidade
+    dn.vy += (dn.isTopDmg?22:38) * dt;
     dn.vx *= 0.94;
     dn.life -= dt;
   }
@@ -2322,26 +2366,38 @@ function drawDamageNumbers() {
       strokeW= 3.5;
 
     } else if(dn.type==='crit') {
-      // Critico: mesma escada de cor MAS maior e com crescimento animado
-      const {sz, col} = _dmgScale(val);
-      size   = Math.round(sz * 1.38 + Math.sin((1-frac)*Math.PI)*7);
-      // converte rgb puro para rgba com alpha
-      color  = col.replace('1)', `${alpha})`);
-      stroke = `rgba(255,255,120,${alpha*0.65})`;
-      strokeW= 2.5;
+      const {sz} = _dmgScale(val);
+      if(dn.isTopDmg) {
+        // ── TOP DAMAGE: vermelho intenso, maior, sobe mais alto ──
+        size   = Math.round(sz * 2.2 + Math.sin((1-frac)*Math.PI)*12);
+        color  = `rgba(255,${Math.round(20+frac*30)},20,${alpha})`;
+        stroke = `rgba(255,220,50,${alpha*0.95})`;
+        strokeW= 5;
+      } else {
+        // ── CRIT normal: laranja vibrante, moderadamente maior ──
+        size   = Math.round(sz * 1.6 + Math.sin((1-frac)*Math.PI)*8);
+        color  = `rgba(255,${Math.round(130+frac*30)},20,${alpha})`;
+        stroke = `rgba(255,60,0,${alpha*0.7})`;
+        strokeW= 3;
+      }
 
     } else if(['dot','fire','poison','ice','lightning','mage','water'].includes(dn.type)) {
+      // DOT/elemento: quase invisível quando crits ocorrem
+      const _dotDim = _critActivityTimer>0 ? 0.08 : 0.75;
       size=11; bold=false;
       const dc={fire:'255,150,40',poison:'80,220,80',ice:'100,210,255',
                 lightning:'255,240,50',mage:'180,100,255',water:'64,168,224',dot:'255,140,40'};
-      color=`rgba(${dc[dn.type]||'210,230,255'},${alpha*0.75})`;
+      color=`rgba(${dc[dn.type]||'210,230,255'},${alpha*_dotDim})`;
 
     } else {
-      // Normal: cor e tamanho pela escada de dano
+      // Normal: transparece bastante quando crit ativo
+      const _normDim = _critActivityTimer>0 ? 0.12 : 1.0;
       const {sz, col} = _dmgScale(val);
       size  = sz;
-      color = col.replace('1)', `${alpha})`);
-      if(val >= 1000){ stroke=`rgba(0,0,0,${alpha*0.45})`; strokeW=1.5; }
+      color = col.replace('1)', `${alpha*_normDim})`);
+      if(val >= 1000 && _critActivityTimer<=0){
+        stroke=`rgba(0,0,0,${alpha*0.45})`; strokeW=1.5;
+      }
       bold  = val >= 100;
     }
 
@@ -2563,8 +2619,8 @@ function updateProjectiles(dt) {
           p.target.y - (p.target.airY||0) - 18,
           actualDmg, numType
         );
-        if(p.isCrit) _registerCrit(p.target.x, p.target.y - (p.target.airY||0) - 18);
-        if(p.isBurn) { p.target.burnTimer=p.burnDur||2.0; p.target.burnDps=p.burnDps||15; }
+        if(p.isCrit) _registerCrit(p.target.x, p.target.y - (p.target.airY||0) - 18, p.dmg);
+        if(p.isBurn) { p.target.burnTimer=p.burnDur||2.5; p.target.burnDps=p.burnDps||30; }
         if(p.element) applyElement(p.target, p.element, p.dmg);
         p.target.flash = 0.12;
         if(p.splash>0) {
@@ -2691,7 +2747,11 @@ function updateWave(dt) {
     }
     SK._save();
     if(MP.connected && MP.isHost)
-      MP.sendAction('sk_sync',{points:SK.points});
+      MP.sendAction('sk_sync',{
+        points: SK.points,
+        unlocked:[...SK.unlocked],
+        ranks: Object.fromEntries(SK.ranks)
+      });
     updateUI();
     const cycle = _isInfernal ? ` — Ciclo ${Math.ceil(waveNum/10)}` : '';
     showWaveBanner('✓ ONDA '+waveNum+cycle+' — DEFESA!');
@@ -2832,9 +2892,12 @@ function showUpgradeMenu(tower, sx, sy) {
     const ccLv=tower.critChanceLv||0, cdLv=tower.critDmgLv||0;
     const dmgMult=1+dLv*0.02, speedPct=Math.round(Math.min(sLv*1.2,60));
     const critPct=ccLv;                          // 1% por nivel
-    const critDmgPct=200+cdLv*3;                 // 200% base + 3%/nivel
+    const critDmgPct=400+cdLv*3;                 // 400% base + 3%/nivel
     const effDmg  = lvlDef.dmg!=null ? Math.round(lvlDef.dmg*dmgMult) : null;
     const effRate = lvlDef.rate!=null ? (lvlDef.rate*(1-speedPct/100)).toFixed(2)+"s" : "—";
+    const _dpsLvB = 1+(tower.damageLv||0)*0.02;
+    const effDpsMin = lvlDef.beamDpsMin!=null ? Math.round(SK.getMageDps(lvlDef.beamDpsMin)*RB.mageDps*_dpsLvB) : null;
+    const effDpsMax = lvlDef.beamDpsMax!=null ? Math.round(SK.getMageDps(lvlDef.beamDpsMax)*RB.mageDps*_dpsLvB) : null;
     const effRange= SK.getTowerRange(tower.type).toFixed(1);
     const nextSCost =sLv <UPGRADE_MAX?ELEM_SPEED_COSTS[sLv+1]:0;
     const nextDCost =dLv <UPGRADE_MAX?ELEM_DMG_COSTS[dLv+1]:0;
@@ -2872,7 +2935,7 @@ function showUpgradeMenu(tower, sx, sy) {
 
     let elemGrid="";
     for(const [key,e2] of Object.entries(ELEMENTS)){
-      const active=tower.element===key, canBuy2=!active&&gold>=800;
+      const active=tower.element===key, canBuy2=!active&&gold>=500;
       elemGrid+=`<button data-action="elem" data-elem="${key}"
         style="cursor:${active||canBuy2?"pointer":"default"};padding:5px 2px;border-radius:5px;
           text-align:center;border:2px solid ${active?e2.color:"#1e3040"};
@@ -2894,7 +2957,8 @@ function showUpgradeMenu(tower, sx, sy) {
           <div style="font-size:11px;font-weight:bold;color:#c8e0f8;line-height:1.2;">${def.name}</div>
           <div style="font-size:7.5px;color:#3a6080;letter-spacing:1.5px;margin-top:2px;">NÍV. ${tower.level}</div>
         </div>
-        ${statCol("⚔","DANO",  effDmg!=null?effDmg:"Beam", effDmg!=null?"#f0c870":"#c060ff")}
+        ${statCol("⚔","DANO",  effDmg!=null?effDmg:effDpsMax!=null?effDpsMax+"/s":"Beam", effDmg!=null?"#f0c870":"#c060ff")}
+        ${effDpsMin!=null?statCol("⚡","DPS MIN",effDpsMin+"/s","#9060d0"):""}
         ${statCol("⏱","TAXA",  effRate, "#80d0f0")}
         ${statCol("📏","ALCAN", effRange,"#70d080")}
         ${statCol("💎","CRIT%", ccLv>0?critPct+"%":"—", ccLv>0?"#ff8040":"#2a4050")}
@@ -2924,7 +2988,7 @@ function showUpgradeMenu(tower, sx, sy) {
         ${statRow("gem_gold",cdLv, cdLv>0?`${critDmgPct}% dano crit`:"dano crítico",  nextCDCost, canCD,"critdmg")}
         <div style="border-top:1px solid #1a3040;padding-top:7px;margin-top:3px;">
           <div style="font-size:8px;color:#3a5868;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">
-            🌟 Elemento <span style="color:#1e3040;">◈800</span></div>
+            🌟 Elemento <span style="color:#1e3040;">◈500</span></div>
           <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:5px;">
             ${elemGrid}
           </div>
@@ -2950,16 +3014,19 @@ function showUpgradeMenu(tower, sx, sy) {
       else if(act==="critchance"&&canCC){gold-=nextCCCost; tower.critChanceLv =ccLv+1; updateUI();rebuild();}
       else if(act==="critdmg"  &&canCD){gold-=nextCDCost;  tower.critDmgLv    =cdLv+1; updateUI();rebuild();}
       else if(act==="sell"){sellTower(tower);}
+      else if(act==="elem"){
+        const newElem=btn.dataset.elem||null;
+        if(newElem&&newElem!==tower.element){
+          if(gold<500)return;
+          gold-=500;tower.element=newElem;updateUI();
+        } else if(!newElem){tower.element=null;}
+        rebuild();
+      }
+      // MP sync após QUALQUER ação (elem agora já aplicado)
       if(MP.connected && ["speed","dmg","critchance","critdmg","elem"].includes(act)) {
         MP.sendAction("tower_sync",{col:tower.col,row:tower.row,
           speedLv:tower.speedLv,damageLv:tower.damageLv,critChanceLv:tower.critChanceLv,
           critDmgLv:tower.critDmgLv,element:tower.element,goldAfter:gold});
-      }
-      else if(act==="elem"){
-        const newElem=btn.dataset.elem||null;
-        if(newElem&&newElem!==tower.element){if(gold<800)return;gold-=800;tower.element=newElem;updateUI();}
-        else if(!newElem){tower.element=null;}
-        rebuild();
       }
     });
     menu.appendChild(card);
@@ -2984,7 +3051,10 @@ function showOverlay(type) {
   ['mpBtnsWin','mpBtnsLose'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=isMp?'flex':'none'; });
   ['soloBtnsWin','soloBtnsLose'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=isMp?'none':'flex'; });
   if(MP.connected && MP.isHost) {
-    MP.sendAction('game_over',{result:type, skPoints:SK.points, ptsAtStart:_skPtsAtStart});
+    MP.sendAction('game_over',{
+      result:type, skPoints:SK.points, ptsAtStart:_skPtsAtStart,
+      unlocked:[...SK.unlocked], ranks:Object.fromEntries(SK.ranks)
+    });
   }
 }
 
@@ -3625,12 +3695,22 @@ function _buildSkillTreeNodes() {
       div.addEventListener('click',()=>{
         const cost=node.costPerRank||node.cost;
         if(SK.points<cost)return;
-        SK.points-=cost;
+        SK.points = Math.max(0, SK.points-cost); // nunca negativo
         if(node.maxRank) SK.ranks.set(node.id,(SK.ranks.get(node.id)||0)+1);
         else SK.unlocked.add(node.id);
         SK._save();
         _buildSkillTreeNodes();_renderSkillTreeLines();_updateSkPtsDisplay();
         tooltip.classList.remove('show');
+        // MP: compartilha compra com o outro jogador
+        if(MP.connected) {
+          MP.sendAction('sk_buy',{
+            nodeId: node.id,
+            cost,
+            isRank: !!node.maxRank,
+            newRank: node.maxRank?(SK.ranks.get(node.id)||0):null,
+            points: SK.points
+          });
+        }
       });
     }
 
@@ -3770,7 +3850,6 @@ function updateFireExplosions(dt) {
 
 function drawFireball(p) {
   if (!FIRE_SPRITE.complete || !FIRE_SPRITE.naturalWidth) return;
-  // Calcula frame de voo: bola cresce conforme se aproxima do alvo
   const dx = p.tx - p.x, dy = p.ty - p.y;
   const distLeft = Math.sqrt(dx*dx + dy*dy);
   const total = p._totalDist || 200;
@@ -3778,14 +3857,34 @@ function drawFireball(p) {
   const fi = Math.min(Math.floor(prog * FIRE_FLIGHT_FRAMES), FIRE_FLIGHT_FRAMES - 1);
   const srcX = fi * FIRE_FW;
   const srcY = FIRE_ROW * FIRE_FH;
+  const _fe = p.element ? ELEMENTS[p.element] : null;
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.rotate(Math.atan2(p.vy, p.vx));
+  // Sprite base (screen: preto transparente)
   ctx.globalCompositeOperation = 'screen';
   ctx.drawImage(FIRE_SPRITE,
     srcX, srcY, FIRE_FW, FIRE_FH,
     -FIRE_DW/2, -FIRE_DH/2, FIRE_DW, FIRE_DH
   );
+  // Overlay de cor do elemento
+  if(_fe) {
+    const r = FIRE_DW * 0.65;
+    ctx.globalAlpha = 0.65;
+    const eg = ctx.createRadialGradient(0,0,0,0,0,r);
+    eg.addColorStop(0, _fe.color);
+    eg.addColorStop(0.6, _fe.color+'88');
+    eg.addColorStop(1, _fe.color+'00');
+    ctx.fillStyle = eg;
+    ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+    // Halo externo
+    ctx.globalAlpha = 0.3;
+    const hg = ctx.createRadialGradient(0,0,r*0.5,0,0,r*1.8);
+    hg.addColorStop(0, _fe.color+'00');
+    hg.addColorStop(1, _fe.color+'55');
+    ctx.fillStyle = hg;
+    ctx.beginPath(); ctx.arc(0,0,r*1.8,0,Math.PI*2); ctx.fill();
+  }
   ctx.restore();
 }
 
@@ -4053,10 +4152,38 @@ const MP = {
         if(this.isHost) startWave();
         break;
       case 'sk_sync':
-        SK.points = d.points; SK._save();
+        SK.points = Math.max(0, d.points);
+        if(d.unlocked) { SK.unlocked=new Set(d.unlocked); SK.unlocked.add('root'); }
+        if(d.ranks) SK.ranks=new Map(Object.entries(d.ranks));
+        SK._save(); updateUI();
+        if(typeof _updateSkPtsDisplay==='function') _updateSkPtsDisplay();
+        if(typeof _buildSkillTreeNodes==='function'&&
+           document.getElementById('skillOverlay')?.classList.contains('show')){
+          _buildSkillTreeNodes();_renderSkillTreeLines();
+        }
         break;
+      case 'sk_buy': {
+        // Aplica mesma compra neste jogador se ele ainda não tem
+        const _alreadyOwned = d.isRank
+          ? (SK.ranks.get(d.nodeId)||0) >= d.newRank
+          : SK.unlocked.has(d.nodeId);
+        if(!_alreadyOwned) {
+          SK.points = Math.max(0, SK.points - d.cost);
+          if(d.isRank) SK.ranks.set(d.nodeId, d.newRank);
+          else SK.unlocked.add(d.nodeId);
+        }
+        SK._save(); updateUI();
+        if(typeof _buildSkillTreeNodes==='function'&&
+           document.getElementById('skillOverlay')?.classList.contains('show')){
+          _buildSkillTreeNodes();_renderSkillTreeLines();_updateSkPtsDisplay();
+        } else if(typeof _updateSkPtsDisplay==='function') _updateSkPtsDisplay();
+        break;
+      }
       case 'game_over':
-        SK.points = d.skPoints; SK._save();
+        SK.points = Math.max(0, d.skPoints);
+        if(d.unlocked){SK.unlocked=new Set(d.unlocked);SK.unlocked.add('root');}
+        if(d.ranks)SK.ranks=new Map(Object.entries(d.ranks));
+        SK._save();
         _skPtsAtStart = d.ptsAtStart;
         showOverlay(d.result);
         break;
