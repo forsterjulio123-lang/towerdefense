@@ -94,10 +94,10 @@ body {
 /* TOP BAR */
 #topbar {
   position:absolute; top:0; left:0; right:0; height:52px;
-  background:linear-gradient(180deg,rgba(8,16,28,0.96),rgba(8,16,28,0.86));
+  background:linear-gradient(180deg,rgba(8,16,28,0.98),rgba(8,16,28,0.92));
   border-bottom:2px solid #1a2e40;
   display:flex; align-items:center; padding:0 16px; gap:20px;
-  box-shadow:0 4px 18px rgba(0,0,0,.5); z-index:10;
+  box-shadow:0 4px 18px rgba(0,0,0,.5); z-index:50;
 }
 .stat { display:flex; align-items:center; gap:7px; font-size:17px; font-weight:bold;
   letter-spacing:1px; text-shadow:0 2px 4px rgba(0,0,0,.6); }
@@ -111,10 +111,11 @@ body {
 /* BOTTOM BAR */
 #bottombar {
   position:absolute; bottom:0; left:0; right:0; height:58px;
-  background:linear-gradient(0deg,rgba(8,16,28,0.96),rgba(8,16,28,0.86));
+  background:linear-gradient(0deg,rgba(8,16,28,0.98),rgba(8,16,28,0.92));
   border-top:2px solid #1a2e40;
   display:flex; align-items:center; justify-content:space-between;
-  padding:0 16px; gap:12px; z-index:10;
+  padding:0 16px; gap:12px; z-index:50;
+  box-shadow:0 -4px 18px rgba(0,0,0,.5);
 }
 .btn {
   background:linear-gradient(180deg,#142840,#0a1828);
@@ -261,16 +262,17 @@ body {
 }
 .menu-btns {
   display:flex; flex-direction:column;
-  gap:12px; z-index:10; align-items:center;
+  gap:14px; z-index:10; align-items:center;
 }
 .mbtn {
-  width:240px; padding:14px 0;
+  width:300px; padding:18px 0;
   font-family:'Courier New',monospace;
-  font-size:13px; font-weight:bold;
+  font-size:15px; font-weight:bold;
   letter-spacing:4px; text-transform:uppercase;
-  border-radius:4px; cursor:pointer;
+  border-radius:6px; cursor:pointer;
   transition:all .18s; border:none;
   position:relative; overflow:hidden;
+  box-shadow:0 4px 16px rgba(0,0,0,0.4);
 }
 .mbtn::before {
   content:''; position:absolute; inset:0;
@@ -279,29 +281,29 @@ body {
 }
 .mbtn:hover::before { transform:translateX(100%); }
 .mbtn-primary {
-  background:linear-gradient(180deg,#2a4a1a,#1a3010);
-  border:1px solid #4a8a2a; color:#80e040;
-  box-shadow:0 0 20px rgba(80,200,40,0.2);
+  background:linear-gradient(180deg,#2a5a1a,#1a3a10);
+  border:2px solid #5aaa2a; color:#90f050;
+  box-shadow:0 0 24px rgba(80,200,40,0.3), 0 4px 16px rgba(0,0,0,0.5);
 }
 .mbtn-primary:hover {
-  border-color:#80d040; color:#c0ff80;
-  box-shadow:0 0 30px rgba(80,200,40,0.4);
+  border-color:#90e050; color:#d0ff90;
+  box-shadow:0 0 36px rgba(80,200,40,0.55), 0 4px 20px rgba(0,0,0,0.6);
 }
 .mbtn-secondary {
-  background:linear-gradient(180deg,#0e1e30,#08121e);
-  border:1px solid #1e3a50; color:#5a8aaa;
+  background:linear-gradient(180deg,#102030,#080e18);
+  border:1px solid #2a4a68; color:#70a8c8;
 }
 .mbtn-secondary:hover {
-  border-color:#4a7a9a; color:#90c0d8;
-  box-shadow:0 0 20px rgba(60,120,180,0.2);
+  border-color:#5a9aba; color:#a8d8f0;
+  box-shadow:0 0 24px rgba(60,120,180,0.3);
 }
 .mbtn-danger {
-  background:linear-gradient(180deg,#2a0e0e,#180808);
-  border:1px solid #501a1a; color:#aa5050;
+  background:linear-gradient(180deg,#301010,#1a0808);
+  border:1px solid #682020; color:#c06060;
 }
 .mbtn-danger:hover {
-  border-color:#904040; color:#e08080;
-  box-shadow:0 0 20px rgba(180,40,40,0.3);
+  border-color:#a04040; color:#f09090;
+  box-shadow:0 0 24px rgba(180,40,40,0.4);
 }
 #settingsModal {
   position:absolute; inset:0; z-index:210;
@@ -351,32 +353,53 @@ body {
   box-shadow:0 0 60px rgba(0,80,160,0.2),0 20px 60px rgba(0,0,0,0.85);}
 .esc-modal .esc-title{font-size:10px;letter-spacing:7px;color:#4a7a9a;
   text-transform:uppercase;margin-bottom:28px;}
-.esc-modal .mbtn{width:230px;margin:0;}
+.esc-modal .mbtn{width:280px;margin:0;}
 
 /* ═══ SKILL TREE ══════════════════════════════════════════════ */
 #skillTreeOverlay{position:absolute;inset:0;z-index:300;display:none;overflow:hidden;background:#020408;}
 #skillTreeOverlay.open{display:block;}
 #skillBgCanvas{position:absolute;inset:0;width:100%;height:100%;}
 #skillSvgLines{position:absolute;inset:0;pointer-events:none;}
-#skillNodes{position:absolute;inset:0;}
-.sk-header{position:absolute;top:18px;left:0;right:0;text-align:center;pointer-events:none;z-index:10;}
-.sk-header h2{font-size:11px;letter-spacing:7px;color:#c8a040;text-transform:uppercase;
+/* viewport pan/zoom container */
+#skillViewport{position:absolute;inset:0;overflow:hidden;cursor:grab;}
+#skillViewport.panning{cursor:grabbing;}
+#skillCanvas{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform;}
+#skillNodes{position:absolute;top:0;left:0;}
+.sk-header{position:absolute;top:16px;left:0;right:0;text-align:center;pointer-events:none;z-index:20;}
+.sk-header h2{font-size:12px;letter-spacing:7px;color:#c8a040;text-transform:uppercase;
   text-shadow:0 0 20px rgba(200,160,64,0.55);}
-.sk-pts{font-size:26px;color:#f4c84a;letter-spacing:2px;margin-top:5px;font-weight:bold;
+.sk-pts{font-size:28px;color:#f4c84a;letter-spacing:2px;margin-top:4px;font-weight:bold;
   text-shadow:0 0 14px rgba(244,200,74,0.65);}
-.sk-pts span{font-size:11px;color:#8aa0b0;letter-spacing:3px;vertical-align:middle;margin-left:6px;}
-.sk-btn-close{position:absolute;top:16px;right:20px;z-index:15;
-  background:linear-gradient(180deg,#1a2840,#0e1828);
-  border:1px solid #2a4060;color:#6a9ab0;font-family:'Courier New',monospace;
-  font-size:10px;letter-spacing:2px;padding:9px 18px;border-radius:4px;
-  cursor:pointer;text-transform:uppercase;transition:all .15s;}
-.sk-btn-close:hover{border-color:#4a8ab0;color:#b0d8f0;box-shadow:0 0 14px rgba(74,138,176,0.35);}
-.sk-reset-btn{position:absolute;bottom:18px;right:22px;z-index:15;
+.sk-pts span{font-size:12px;color:#8aa0b0;letter-spacing:3px;vertical-align:middle;margin-left:6px;}
+/* Bottom action bar — always visible, never blocks nodes */
+#skBottomBar{
+  position:absolute;bottom:0;left:0;right:0;z-index:20;height:64px;
+  background:linear-gradient(0deg,rgba(2,4,8,0.97),rgba(2,4,8,0.85));
+  border-top:1px solid #1a3050;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;gap:12px;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.7);
+}
+.sk-btn-close{
+  background:linear-gradient(180deg,#0e2038,#081020);
+  border:2px solid #2a5080;color:#80b8e0;font-family:'Courier New',monospace;
+  font-size:13px;font-weight:bold;letter-spacing:3px;padding:13px 28px;border-radius:6px;
+  cursor:pointer;text-transform:uppercase;transition:all .18s;
+  box-shadow:0 0 12px rgba(40,100,160,0.2);}
+.sk-btn-close:hover{border-color:#5a9ad0;color:#c0e8ff;box-shadow:0 0 20px rgba(74,138,200,0.45);}
+.sk-reset-btn{
   background:linear-gradient(180deg,#2a0e0e,#180808);
-  border:1px solid #501a1a;color:#aa5050;font-family:'Courier New',monospace;
-  font-size:9px;letter-spacing:2px;padding:7px 14px;border-radius:4px;
-  cursor:pointer;text-transform:uppercase;transition:all .15s;}
-.sk-reset-btn:hover{border-color:#904040;color:#e08080;}
+  border:2px solid #602020;color:#c06060;font-family:'Courier New',monospace;
+  font-size:11px;font-weight:bold;letter-spacing:2px;padding:13px 22px;border-radius:6px;
+  cursor:pointer;text-transform:uppercase;transition:all .18s;}
+.sk-reset-btn:hover{border-color:#a04040;color:#f09090;box-shadow:0 0 16px rgba(180,40,40,0.35);}
+/* zoom hint */
+#skZoomHint{font-size:9px;letter-spacing:2px;color:#2a4a60;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;}
+#skZoomReset{background:transparent;border:1px solid #1a3040;color:#3a6080;
+  font-family:'Courier New',monospace;font-size:9px;letter-spacing:1px;
+  padding:5px 10px;border-radius:4px;cursor:pointer;transition:all .15s;}
+#skZoomReset:hover{border-color:#4a7090;color:#70a8c8;}
 /* node */
 .sk-node{position:absolute;transform:translate(-50%,-50%);width:76px;
   cursor:pointer;text-align:center;transition:transform .15s;user-select:none;}
@@ -415,7 +438,7 @@ body {
 #skTooltip .tt-cost{font-size:11px;color:#f4c84a;margin-top:8px;font-weight:bold;}
 #skTooltip .tt-info{font-size:9px;color:#c06060;margin-top:4px;letter-spacing:1px;}
 /* legend */
-.sk-legend{position:absolute;bottom:18px;left:22px;display:flex;gap:20px;z-index:10;}
+.sk-legend{position:absolute;bottom:74px;left:22px;display:flex;gap:20px;z-index:10;}
 .sk-leg{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:1.5px;
   color:#3a5060;text-transform:uppercase;}
 .sk-leg-dot{width:13px;height:13px;border-radius:50%;border:2px solid;}
@@ -432,8 +455,8 @@ body {
     </div>
     <div class="menu-btns">
       <button class="mbtn mbtn-primary" id="btnStart">⚔&nbsp;&nbsp;Iniciar</button>
-      <button class="mbtn" id="btnMultiplayer" style="background:linear-gradient(180deg,#071830,#040c18);border:1px solid #2060a0;color:#5aaeff;letter-spacing:3px;">🌐&nbsp;&nbsp;Multijogador</button>
-      <button class="mbtn mbtn-secondary" id="btnSkillTree" style="background:linear-gradient(180deg,#1a0e30,#0e0818);border-color:#5a2a8a;color:#c080ff;">✦&nbsp;&nbsp;Árvore de Skills</button>
+      <button class="mbtn" id="btnMultiplayer" style="background:linear-gradient(180deg,#071830,#040c18);border:2px solid #2060a0;color:#5aaeff;letter-spacing:3px;box-shadow:0 0 20px rgba(0,100,200,0.25);">🌐&nbsp;&nbsp;Multijogador</button>
+      <button class="mbtn mbtn-secondary" id="btnSkillTree" style="background:linear-gradient(180deg,#1a0e30,#0e0818);border-color:#6a3aaa;color:#d090ff;box-shadow:0 0 18px rgba(130,60,200,0.2);">✦&nbsp;&nbsp;Árvore de Skills</button>
       <button class="mbtn mbtn-secondary" id="btnSettings">⚙&nbsp;&nbsp;Configurações</button>
       <button class="mbtn mbtn-danger" id="btnQuit">✕&nbsp;&nbsp;Sair</button>
     </div>
@@ -602,19 +625,31 @@ body {
   <!-- SKILL TREE OVERLAY -->
   <div id="skillTreeOverlay">
     <canvas id="skillBgCanvas"></canvas>
-    <svg id="skillSvgLines" width="1500" height="870"></svg>
-    <div id="skillNodes"></div>
+    <!-- Viewport: recebe drag/pinch para pan+zoom -->
+    <div id="skillViewport">
+      <div id="skillCanvas">
+        <svg id="skillSvgLines" width="1500" height="870"></svg>
+        <div id="skillNodes"></div>
+      </div>
+    </div>
     <div class="sk-header">
       <h2>✦ Árvore de Habilidades ✦</h2>
       <div class="sk-pts" id="skPtsDisplay">0 <span>pontos disponíveis</span></div>
     </div>
-    <button class="sk-btn-close" onclick="closeSkillTree()">✕ Fechar</button>
-    <button class="sk-reset-btn" onclick="resetSkillTree()">↺ Resetar</button>
     <div id="skTooltip"></div>
     <div class="sk-legend">
       <div class="sk-leg"><div class="sk-leg-dot" style="border-color:#c8a040;background:rgba(200,160,64,0.15)"></div>Desbloqueado</div>
       <div class="sk-leg"><div class="sk-leg-dot" style="border-color:#3a7aaa;background:rgba(74,138,200,0.1)"></div>Disponível</div>
       <div class="sk-leg"><div class="sk-leg-dot" style="border-color:#2a3a44;background:rgba(0,0,0,0.3)"></div>Bloqueado</div>
+    </div>
+    <!-- Bottom action bar -->
+    <div id="skBottomBar">
+      <button class="sk-btn-close" onclick="closeSkillTree()">✕&nbsp;&nbsp;Fechar</button>
+      <div id="skZoomHint">
+        🖱 Arraste para mover
+        <button id="skZoomReset" onclick="skResetView()">⌖ Centralizar</button>
+      </div>
+      <button class="sk-reset-btn" onclick="resetSkillTree()">↺&nbsp;&nbsp;Resetar Skills</button>
     </div>
   </div>
   <div id="topbar">
@@ -3689,9 +3724,96 @@ function showCardSelect() {
 // ═══════════════════════════════════════════════════════════════
 let _skBgAnimId = null;
 
+// ── Skill Tree Pan/Zoom ─────────────────────────────────────
+let _skPanX=0, _skPanY=0, _skZoom=1;
+const SK_ZOOM_MIN=0.45, SK_ZOOM_MAX=1.6;
+
+function _skApplyTransform() {
+  const sc = document.getElementById('skillCanvas');
+  if(sc) sc.style.transform = `translate(${_skPanX}px,${_skPanY}px) scale(${_skZoom})`;
+}
+
+function skResetView() {
+  _skPanX=0; _skPanY=0; _skZoom=1;
+  _skApplyTransform();
+}
+
+function _skInitViewport() {
+  const vp = document.getElementById('skillViewport');
+  if(!vp || vp._skEventsAttached) return;
+  vp._skEventsAttached = true;
+
+  let _drag=false, _dragSx=0, _dragSy=0, _dragPx=0, _dragPy=0;
+  let _pinching=false, _pinch0Dist=0, _pinch0Zoom=1, _pinch0PanX=0, _pinch0PanY=0;
+
+  // Mouse drag
+  vp.addEventListener('mousedown', e=>{
+    if(e.target.closest('.sk-node')) return;
+    _drag=true; _dragSx=e.clientX; _dragSy=e.clientY;
+    _dragPx=_skPanX; _dragPy=_skPanY;
+    vp.classList.add('panning'); e.preventDefault();
+  });
+  window.addEventListener('mousemove', e=>{
+    if(!_drag) return;
+    _skPanX = _dragPx + (e.clientX - _dragSx);
+    _skPanY = _dragPy + (e.clientY - _dragSy);
+    _skApplyTransform();
+  });
+  window.addEventListener('mouseup', ()=>{ _drag=false; vp.classList.remove('panning'); });
+
+  // Scroll-to-zoom
+  vp.addEventListener('wheel', e=>{
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.1 : 0.91;
+    const newZ = Math.max(SK_ZOOM_MIN, Math.min(SK_ZOOM_MAX, _skZoom * factor));
+    const rect = vp.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    _skPanX = mx - (mx - _skPanX) * (newZ / _skZoom);
+    _skPanY = my - (my - _skPanY) * (newZ / _skZoom);
+    _skZoom = newZ;
+    _skApplyTransform();
+  }, {passive:false});
+
+  // Touch pan + pinch-zoom
+  vp.addEventListener('touchstart', e=>{
+    if(e.touches.length === 2) {
+      _pinching=true;
+      _pinch0Dist = Math.hypot(e.touches[1].clientX-e.touches[0].clientX, e.touches[1].clientY-e.touches[0].clientY);
+      _pinch0Zoom=_skZoom; _pinch0PanX=_skPanX; _pinch0PanY=_skPanY;
+      return;
+    }
+    if(e.touches.length===1 && !e.target.closest('.sk-node')) {
+      _drag=true;
+      _dragSx=e.touches[0].clientX; _dragSy=e.touches[0].clientY;
+      _dragPx=_skPanX; _dragPy=_skPanY;
+    }
+  },{passive:true});
+  vp.addEventListener('touchmove', e=>{
+    if(_pinching && e.touches.length===2) {
+      e.preventDefault();
+      const dist=Math.hypot(e.touches[1].clientX-e.touches[0].clientX,e.touches[1].clientY-e.touches[0].clientY);
+      const newZ=Math.max(SK_ZOOM_MIN,Math.min(SK_ZOOM_MAX, _pinch0Zoom*(dist/_pinch0Dist)));
+      const rect=vp.getBoundingClientRect();
+      const mx=(e.touches[0].clientX+e.touches[1].clientX)/2-rect.left;
+      const my=(e.touches[0].clientY+e.touches[1].clientY)/2-rect.top;
+      _skPanX=mx-(mx-_pinch0PanX)*(newZ/_pinch0Zoom);
+      _skPanY=my-(my-_pinch0PanY)*(newZ/_pinch0Zoom);
+      _skZoom=newZ; _skApplyTransform(); return;
+    }
+    if(_drag && e.touches.length===1) {
+      _skPanX=_dragPx+(e.touches[0].clientX-_dragSx);
+      _skPanY=_dragPy+(e.touches[0].clientY-_dragSy);
+      _skApplyTransform();
+    }
+  },{passive:false});
+  vp.addEventListener('touchend', e=>{ if(e.touches.length<2)_pinching=false; if(e.touches.length===0)_drag=false; },{passive:true});
+}
+
 function openSkillTree() {
   const overlay = document.getElementById('skillTreeOverlay');
   overlay.classList.add('open');
+  skResetView();
+  _skInitViewport();
   _renderSkillTreeBg();
   _buildSkillTreeNodes();
   _renderSkillTreeLines();
@@ -3828,6 +3950,7 @@ function _buildSkillTreeNodes() {
       let tx=nBnd.left-bnd.left+44,ty=nBnd.top-bnd.top-10;
       if(tx+215>1500)tx=nBnd.left-bnd.left-220;
       if(ty<10)ty=nBnd.bottom-bnd.top+8;
+      if(ty+160>800)ty=nBnd.top-bnd.top-170;
       tooltip.style.left=tx+'px';tooltip.style.top=ty+'px';
       tooltip.classList.add('show');
     });
