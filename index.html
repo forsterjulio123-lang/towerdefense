@@ -2647,6 +2647,7 @@ function loop(ts) {
 
   if(dt>0) {
     if(!MP.enabled || MP.isHost) { updateWave(dt); updateEnemies(dt); }
+    else { _mpAnimateEnemies(dt); } // guest: só anima, não move
     updateTowers(dt);
     updateProjectiles(dt);
     updateFireExplosions(dt);
@@ -3860,6 +3861,7 @@ const MP = {
         id:e._mpId||0, type:e.type,
         hp:e.hp, maxHp:e.maxHp,
         x:e.x, y:e.y, airY:e.airY||0,
+        col:e.col||0, row:e.row||0,
         wpIdx:e.wpIdx||0, tileIdx:e.tileIdx||0,
         dead:e.dead, burnTimer:e.burnTimer||0
       })),
@@ -3916,6 +3918,9 @@ const MP = {
       if(le) {
         le.x = le.x*0.55 + h.x*0.45;
         le.y = le.y*0.55 + h.y*0.45;
+        // Recalcula col/row para drawEnemy funcionar corretamente
+        const _dx2=(le.x-OX)/(RTW/2), _dy2=(le.y-OY)/(RTH/2);
+        le.col=Math.round((_dx2+_dy2)/2); le.row=Math.round((_dy2-_dx2)/2);
         le.hp=h.hp; le.airY=h.airY; le.wpIdx=h.wpIdx;
         le.burnTimer=h.burnTimer;
       } else {
@@ -4007,9 +4012,19 @@ function _mpSpawnEnemy(h) {
   const def = ENEMY_DEFS[h.type];
   if(!def) return;
   const sc = SLIME_CONFIG[h.type]||SLIME_CONFIG.slime;
+  // Usa col/row do host diretamente (enviado pelo hostSync)
+  // Fallback: calcula pelo inverso de isoPos
+  let col = h.col, row = h.row;
+  if(col === undefined || col === 0) {
+    const _dx = (h.x - OX) / (RTW/2);
+    const _dy = (h.y - OY) / (RTH/2);
+    col = Math.round((_dx + _dy) / 2);
+    row = Math.round((_dy - _dx) / 2);
+  }
   const e = {
     _mpId:h.id, type:h.type,
     hp:h.hp, maxHp:h.maxHp, dead:false,
+    col, row,
     x:h.x, y:h.y, airY:h.airY||0,
     wpIdx:h.wpIdx||0, tileIdx:h.tileIdx||0,
     hopT:Math.random(), animT:Math.random()*10,
@@ -4020,6 +4035,24 @@ function _mpSpawnEnemy(h) {
     tilePath:[], tileT:0
   };
   enemies.push(e);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Animação local dos inimigos no GUEST (sem simulação de física)
+// ─────────────────────────────────────────────────────────────
+function _mpAnimateEnemies(dt) {
+  for(const e of enemies) {
+    if(e.dead) continue;
+    const sc = e.sc || SLIME_CONFIG[e.type] || SLIME_CONFIG.slime;
+    e.animT = (e.animT||0) + dt;
+    e.hopT  = (e.hopT||0) + dt * (sc.hopRate||1.8) * 2.2;
+    const hp = e.hopT % 1;
+    if(hp<0.12)      { const t=hp/0.12;         e.squash=0.55*t; e.airY=0; }
+    else if(hp<0.20) { const t=(hp-0.12)/0.08;  e.squash=0.55*(1-t); e.airY=(sc.hopHeight||12)*0.25*t; }
+    else if(hp<0.82) { const t=(hp-0.20)/0.62;  e.airY=Math.sin(t*Math.PI)*(sc.hopHeight||12)+(sc.hopHeight||12)*0.25*(1-t); e.squash=0; }
+    else             { const t=(hp-0.82)/0.18;  e.squash=0.65*Math.sin(t*Math.PI); e.airY=0; }
+    if(e.flash>0) e.flash=Math.max(0,e.flash-dt);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
