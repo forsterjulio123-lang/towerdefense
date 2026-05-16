@@ -1413,7 +1413,9 @@ function initState() {
   resetRB();
   document.getElementById('cardSelectOverlay').style.display='none';
   document.getElementById('vicMsg').textContent =
-    _isInfernal ? 'Todas as 100 ondas do Infernal sobrevividas!' : 'Todas as ondas defendidas!';
+    _isInfernal
+      ? `💀 Infernal concluído — ${waveNum} ondas! HP final: ${Math.round(Math.pow(2,Math.floor((waveNum-1)/10))*400)}% | Vel: ${Math.round(Math.pow(1.1,Math.floor((waveNum-1)/10))*100)}%`
+      : 'Todas as ondas defendidas!';
   updateUI();
 }
 
@@ -2367,7 +2369,11 @@ function spawnEnemy(type) {
   const def = ENEMY_DEFS[type];
   if(!def) { console.error('Enemy type not found:', type); return; }
   const infernalMult = _isInfernal ? Math.pow(2, Math.floor((waveNum-1)/10)) : 1;
-  const spawnHp = Math.round(def.hp * diffMultiplier * infernalMult);
+  // +300% HP base (4×) para dificuldades difícil/épico/infernal
+  const hardHpMult = (_diffId==='dificil'||_diffId==='epico'||_diffId==='infernal') ? 4.0 : 1.0;
+  const spawnHp = Math.round(def.hp * hardHpMult * diffMultiplier * infernalMult);
+  // +10% velocidade por ciclo de 10 ondas (infernal)
+  const waveSpeedScale = _isInfernal ? Math.pow(1.1, Math.floor((waveNum-1)/10)) : 1.0;
   const pathIdx = Math.floor(Math.random()*2);
   const startWP  = ALL_WPS[pathIdx][0];
   // Build tile-coord path for this enemy (waypoints as {c,r})
@@ -2380,7 +2386,7 @@ function spawnEnemy(type) {
     // tile-based movement (reference system)
     tilePath, tileIdx:0, tileT:0,
     col: tilePath[0].c, row: tilePath[0].r,
-    speed: def.speed / (Math.sqrt((RTW/2)**2 + (RTH/2)**2)), // px/s → tiles/s
+    speed: def.speed * waveSpeedScale / (Math.sqrt((RTW/2)**2 + (RTH/2)**2)), // px/s → tiles/s
     // also keep screen pos for compatibility with projectile system
     x:startWP[0], y:startWP[1],
     pathIdx, wpIdx:1,
@@ -2656,8 +2662,9 @@ function startWave() {
   waveQueue.sort((a,b)=>a.at-b.at);
   waveTimer=0; waveSpawnIdx=0;
   updateUI();
-  const cycle = _isInfernal ? ` (Ciclo ${Math.ceil(waveNum/10)})` : '';
-  showWaveBanner('⚔ ONDA '+waveNum+cycle);
+  const cycle = _isInfernal ? ` — Ciclo ${Math.ceil(waveNum/10)}` : '';
+  const spScl = _isInfernal && waveNum>1 ? ` ⚡${Math.round(Math.pow(1.1,Math.floor((waveNum-1)/10))*100)}%spd` : '';
+  showWaveBanner('⚔ ONDA '+waveNum+cycle+spScl);
 }
 
 function updateWave(dt) {
@@ -2674,7 +2681,7 @@ function updateWave(dt) {
     const baseBonus = 40+waveNum*10+RB.waveGold;
     gold += SK.has('wave_bonus') ? Math.round(baseBonus*1.6) : baseBonus;
     // Skill points by difficulty: rate = waves needed per point
-    const skRate = {facil:10, normal:5, dificil:4, epico:4, infernal:3}[_diffId]||5;
+    const skRate = {facil:10, normal:5, dificil:4, epico:4, infernal:2}[_diffId]||5;
     if(waveNum % skRate === 0) {
       SK.points++;
     }
@@ -3942,6 +3949,7 @@ const MP = {
         hp:e.hp, maxHp:e.maxHp,
         x:e.x, y:e.y, airY:e.airY||0,
         col:e.col||0, row:e.row||0,
+        speed:e.speed,
         wpIdx:e.wpIdx||0, tileIdx:e.tileIdx||0,
         dead:e.dead, burnTimer:e.burnTimer||0
       })),
@@ -4122,7 +4130,7 @@ function _mpSpawnEnemy(h) {
     blinkPhase:Math.random(), squash:0, dirX:0,
     flash:0, lastDripT:0, burnTimer:h.burnTimer||0,
     burnDps:15, sc,
-    speed:def.speed||60,
+    speed: h.speed || (def.speed / (Math.sqrt((RTW/2)**2 + (RTH/2)**2))),
     tilePath:[], tileT:0,
     _mpGuest:true,
     _targetX:h.x, _targetY:h.y
@@ -4226,7 +4234,8 @@ function mpPostGame() {
     {id:'facil',   label:'🟢 Fácil',   mult:0.6, color:'#1a4a1a',border:'#3a8a3a',text:'#70d040'},
     {id:'normal',  label:'🔵 Normal',  mult:3.0, color:'#1a3a6a',border:'#4a7aaa',text:'#80c0f0'},
     {id:'dificil', label:'🟠 Difícil', mult:4.0, color:'#5a2a08',border:'#bb6a18',text:'#f09030'},
-    {id:'epico',   label:'🔴 Épico',   mult:6.0, color:'#3a0a0a',border:'#9a2a2a',text:'#f07070'},
+    {id:'epico',   label:'🔴 Épico',    mult:6.0,  color:'#3a0a0a',border:'#9a2a2a',text:'#f07070'},
+    {id:'infernal',label:'💀 Infernal', mult:8.0,  isInfernal:true, color:'#1a0505',border:'#701010',text:'#ff5050'},
   ];
   const box = document.getElementById('mpPostDiffBtns');
   const guestMsg = document.getElementById('mpPostGuestMsg');
@@ -4310,7 +4319,8 @@ function _mpBuildDiffBtns() {
     {id:'facil',   label:'🟢 Fácil',   mult:0.6,  color:'#1a4a1a',border:'#3a8a3a',text:'#70d040'},
     {id:'normal',  label:'🔵 Normal',  mult:3.0,  color:'#1a3a6a',border:'#4a7aaa',text:'#80c0f0'},
     {id:'dificil', label:'🟠 Difícil', mult:4.0,  color:'#5a2a08',border:'#bb6a18',text:'#f09030'},
-    {id:'epico',   label:'🔴 Épico',   mult:6.0,  color:'#3a0a0a',border:'#9a2a2a',text:'#f07070'},
+    {id:'epico',   label:'🔴 Épico',    mult:6.0,  color:'#3a0a0a',border:'#9a2a2a',text:'#f07070'},
+    {id:'infernal',label:'💀 Infernal', mult:8.0,  isInfernal:true, bonusGold:0, color:'#1a0505',border:'#701010',text:'#ff5050'},
   ];
   const box = document.getElementById('mpDiffBtns');
   box.innerHTML='';
