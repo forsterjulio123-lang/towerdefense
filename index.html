@@ -3739,7 +3739,7 @@ const MP = {
   _syncTimer: 0,
   SYNC_INTERVAL: 0.15,   // s entre state syncs do host
 
-  get connected() { return !!(this.enabled && this.conn && this.conn.open); },
+  get connected() { return !!(this.conn && this.conn.open); },
 
   _log(m) { console.log('[MP]', m); },
 
@@ -3764,6 +3764,7 @@ const MP = {
     await this.initPeer();
     this.peer.on('connection', conn => {
       this.conn = conn;
+      this.enabled = true; // conexão ativa antes de startGame
       this._setupConn(conn);
       // P2 conectou — mostrar dificuldades
       document.getElementById('mpSlotP2').style.opacity = '1';
@@ -3787,6 +3788,7 @@ const MP = {
       conn.on('open', () => {
         clearTimeout(timeout);
         this.conn = conn;
+        this.enabled = true; // guest ativo ao conectar
         this._setupConn(conn);
         document.getElementById('mpSlotP2').style.opacity = '1';
         document.getElementById('mpStatus').textContent = '✅ Conectado! Aguardando host iniciar...';
@@ -3956,8 +3958,12 @@ const MP = {
         break;
       case 'wave_start':
         if(!this.isHost) {
-          waveNum=d.waveNum-1; // startWave irá incrementar
-          startWave();
+          // Guest: apenas sincroniza o número da onda
+          // Os inimigos chegam via state sync do host
+          waveNum = d.waveNum;
+          state = 'wave';
+          showWaveBanner('⚔ ONDA '+waveNum);
+          updateUI();
         }
         break;
     }
@@ -4025,9 +4031,14 @@ function _mpApplyDiff(d) {
   _isInfernal = !!d.isInfernal;
   _diffId = d.id;
   activeTotalWaves = _isInfernal ? 100 : WAVES.length;
-  const ss = document.getElementById('startScreen');
-  ssRunning=false; ss.style.display='none'; _gameRunning=true;
-  initState(); requestAnimationFrame(loop);
+  // Garante que todas as telas de menu estejam fechadas
+  ['startScreen','diffScreen','mpLobby'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+  ssRunning=false; _gameRunning=true;
+  // Pequeno delay para garantir que o DOM atualizou antes do loop
+  setTimeout(() => { initState(); requestAnimationFrame(loop); }, 80);
 }
 
 // ─────────────────────────────────────────────────────────────
