@@ -409,7 +409,14 @@ body {
       <div id="mpCodigoBox" style="display:none;flex-direction:column;align-items:center;gap:8px;
         background:#080f1c;border:1px solid #1a3a5a;border-radius:8px;padding:16px 28px;">
         <div style="font-size:9px;letter-spacing:4px;color:#4a7090;text-transform:uppercase;">Código da Sala</div>
-        <div id="mpCodigo" style="font-size:26px;letter-spacing:10px;color:#5aaeff;font-weight:bold;"></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="mpCodigo" style="font-size:26px;letter-spacing:10px;color:#5aaeff;font-weight:bold;"></div>
+          <button onclick="mpCopiarCodigo()" id="mpCopyBtn"
+            style="padding:6px 12px;background:#0a1e3a;border:1px solid #2060a0;border-radius:4px;
+                   color:#5aaeff;font-family:'Courier New',monospace;font-size:10px;
+                   letter-spacing:1px;cursor:pointer;" title="Copiar código">📋 Copiar</button>
+        </div>
+        <div id="mpCopyMsg" style="font-size:9px;color:#50c878;min-height:12px;"></div>
         <div style="font-size:9px;color:#4a7090;">Compartilhe este código com o outro jogador</div>
       </div>
       <!-- Dificuldade (aparece quando P2 conecta) -->
@@ -1344,7 +1351,7 @@ let waveQueue, waveTimer, waveSpawnIdx, wavePending;
 
 function initState() {
   lives = 20 + (SK.has('extra_lives') ? 5 : 0);
-  gold  = 300 + (window._diffBonusGold||0) + (SK.has('start_gold') ? 150 : 0);
+  gold  = 300 + (window._diffBonusGold||0) + (MP.enabled ? 0 : (SK.has('start_gold') ? 150 : 0));
   waveNum=0; gameSpeed=1; paused=false; state='idle';
   enemies=[]; projectiles=[]; particles=[]; towers=[];
   towerGrid=Array.from({length:ROWS},()=>new Array(COLS).fill(null));
@@ -1518,9 +1525,14 @@ function drawHpBar(e, x, topY, r) {
 
 function drawEnemy(e) {
   const sc = e.sc || SLIME_CONFIG[e.type] || SLIME_CONFIG.slime;
-  const [sx,sy] = isoPos(e.col, e.row);
-  const cx = sx;
-  const cy = sy - e.airY;  // centrado no topo do tile
+  // Guest MP: usa coordenadas de tela interpoladas (sem snap)
+  let cx, cy;
+  if(e._mpGuest) {
+    cx = e.x; cy = e.y - e.airY;
+  } else {
+    const [sx,sy] = isoPos(e.col, e.row);
+    cx = sx; cy = sy - e.airY;
+  }
   const anim = {
     t: e.animT, dirX: e.dirX,
     airY: e.airY, blinkPhase: e.blinkPhase || 0,
@@ -2646,8 +2658,12 @@ function loop(ts) {
   const dt = paused ? 0 : rawDt*gameSpeed;
 
   if(dt>0) {
-    if(!MP.enabled || MP.isHost) { updateWave(dt); updateEnemies(dt); }
-    else { _mpAnimateEnemies(dt); } // guest: só anima, não move
+    if(!MP.enabled || MP.isHost) {
+      const _goldBefore = gold;
+      updateWave(dt); updateEnemies(dt);
+      if(MP.enabled && MP.isHost)
+        MP._pendingKillGold = (MP._pendingKillGold||0) + Math.max(0, gold - _goldBefore);
+    } else { _mpAnimateEnemies(dt); }
     updateTowers(dt);
     updateProjectiles(dt);
     updateFireExplosions(dt);
@@ -3738,7 +3754,7 @@ const MP = {
   otherColor: '#ff8844',
   otherCursor: {x:-1, y:-1, active:false},
   _syncTimer: 0,
-  SYNC_INTERVAL: 0.15,   // s entre state syncs do host
+  SYNC_INTERVAL: 0.08,   // s entre state syncs do host (80ms)
 
   get connected() { return !!(this.conn && this.conn.open); },
 
@@ -3865,6 +3881,8 @@ const MP = {
         wpIdx:e.wpIdx||0, tileIdx:e.tileIdx||0,
         dead:e.dead, burnTimer:e.burnTimer||0
       })),
+      killGold: (()=>{ const kg=this._pendingKillGold||0; this._pendingKillGold=0; return kg; })(),
+      lives,
       towers: towers.map(t=>({
         col:t.col, row:t.row, type:t.type, level:t.level,
         speedLv:t.speedLv||0, damageLv:t.damageLv||0,
@@ -3876,7 +3894,9 @@ const MP = {
 
   // GUEST: aplica estado recebido do host
   _applyState(d) {
-    gold = d.gold; lives = d.lives; waveNum = d.waveNum;
+    // Gold separado: guest soma apenas o que ganhou por kills
+    if(d.killGold > 0) { gold += d.killGold; }
+    lives = d.lives; waveNum = d.waveNum;
     if(d.state && d.state !== state) state = d.state;
     updateUI();
 
@@ -3916,12 +3936,11 @@ const MP = {
     for(const h of he) {
       const le=leMap.get(h.id);
       if(le) {
-        le.x = le.x*0.55 + h.x*0.45;
-        le.y = le.y*0.55 + h.y*0.45;
-        // Recalcula col/row para drawEnemy funcionar corretamente
-        const _dx2=(le.x-OX)/(RTW/2), _dy2=(le.y-OY)/(RTH/2);
-        le.col=Math.round((_dx2+_dy2)/2); le.row=Math.round((_dy2-_dx2)/2);
-        le.hp=h.hp; le.airY=h.airY; le.wpIdx=h.wpIdx;
+        // Alvo para interpolação suave — sem pulos visíveis
+        le._targetX = h.x; le._targetY = h.y;
+        // col/row sempre do host (inteiro estável, sem recalcular)
+        if(h.col) { le.col = h.col; le.row = h.row; }
+        le.hp=h.hp; le.wpIdx=h.wpIdx;
         le.burnTimer=h.burnTimer;
       } else {
         // Novo inimigo do host
@@ -3936,17 +3955,17 @@ const MP = {
       case 'place':
         if(!towerGrid[d.row][d.col]) {
           _mpPlaceTowerSilent(d.col,d.row,d.type,'remote');
-          gold=d.goldAfter; updateUI();
+          updateUI();
         }
         break;
       case 'upgrade': {
         const t=towers.find(t=>t.col===d.col&&t.row===d.row);
-        if(t){t.level=d.level; gold=d.goldAfter; updateUI();}
+        if(t){t.level=d.level; updateUI();}
         break;
       }
       case 'sell': {
         const t=towers.find(t=>t.col===d.col&&t.row===d.row);
-        if(t){towerGrid[t.row][t.col]=null;towers=towers.filter(x=>x!==t);gold=d.goldAfter;updateUI();}
+        if(t){towerGrid[t.row][t.col]=null;towers=towers.filter(x=>x!==t);updateUI();}
         break;
       }
       case 'tower_sync': {
@@ -3954,7 +3973,7 @@ const MP = {
         if(t){
           t.speedLv=d.speedLv;t.damageLv=d.damageLv;
           t.critChanceLv=d.critChanceLv;t.critDmgLv=d.critDmgLv;
-          t.element=d.element; gold=d.goldAfter; updateUI();
+          t.element=d.element; updateUI();
         }
         break;
       }
@@ -4032,7 +4051,9 @@ function _mpSpawnEnemy(h) {
     flash:0, lastDripT:0, burnTimer:h.burnTimer||0,
     burnDps:15, sc,
     speed:def.speed||60,
-    tilePath:[], tileT:0
+    tilePath:[], tileT:0,
+    _mpGuest:true,
+    _targetX:h.x, _targetY:h.y
   };
   enemies.push(e);
 }
@@ -4044,6 +4065,12 @@ function _mpAnimateEnemies(dt) {
   for(const e of enemies) {
     if(e.dead) continue;
     const sc = e.sc || SLIME_CONFIG[e.type] || SLIME_CONFIG.slime;
+    // Interpolação suave até posição alvo (sem snap ou piscar)
+    if(e._targetX !== undefined) {
+      const spd = Math.min(1, dt * 12);
+      e.x += (e._targetX - e.x) * spd;
+      e.y += (e._targetY - e.y) * spd;
+    }
     e.animT = (e.animT||0) + dt;
     e.hopT  = (e.hopT||0) + dt * (sc.hopRate||1.8) * 2.2;
     const hp = e.hopT % 1;
@@ -4103,6 +4130,24 @@ async function mpCriarSala() {
   } catch(e) {
     document.getElementById('mpStatus').textContent = '❌ Erro: ' + (e.message||e);
   }
+}
+
+function mpCopiarCodigo() {
+  const code = document.getElementById('mpCodigo').textContent.trim();
+  navigator.clipboard.writeText(code).then(() => {
+    const msg = document.getElementById('mpCopyMsg');
+    msg.textContent = '✓ Copiado!';
+    setTimeout(() => { msg.textContent = ''; }, 2000);
+  }).catch(() => {
+    // fallback manual
+    const el = document.getElementById('mpCodigo');
+    const range = document.createRange();
+    range.selectNode(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+  });
 }
 
 async function mpEntrarSala() {
