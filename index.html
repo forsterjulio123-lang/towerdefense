@@ -2100,28 +2100,29 @@ function render() {
     const pulse = 0.85 + 0.15*Math.sin(performance.now()/180);
     ctx.save();
     ctx.globalAlpha = 0.9;
-    // Background
-    ctx.fillStyle = 'rgba(8,4,0,0.75)';
-    ctx.strokeStyle = `rgba(255,160,0,${pulse})`;
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.roundRect(cx-5, cy-28, 138, 56, 8); ctx.fill(); ctx.stroke();
-    // "COMBO" label
-    ctx.font = 'bold 10px Arial';
-    ctx.fillStyle = 'rgba(255,180,0,0.8)';
-    ctx.textAlign = 'center';
-    ctx.fillText('⚡ COMBO', cx+64, cy-12);
-    // Count + bonus
-    ctx.font = `bold ${Math.round(22*pulse)}px Arial`;
+    // Fundo compacto
+    ctx.fillStyle = 'rgba(6,2,0,0.82)';
+    ctx.strokeStyle = `rgba(255,140,0,${pulse*0.9})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(cx+10, cy-20, 112, 42, 6); ctx.fill(); ctx.stroke();
+    // Contagem ×N à esquerda
+    ctx.font = `bold ${Math.round(18*pulse)}px Arial`;
     ctx.fillStyle = `rgba(255,${Math.round(200+55*pulse)},20,1)`;
-    ctx.shadowColor='#ff8000'; ctx.shadowBlur=12;
-    ctx.fillText(`×${critCombo.count}  +${critCombo.bonusPct}%`, cx+64, cy+14);
+    ctx.shadowColor='#ff6000'; ctx.shadowBlur=8;
+    ctx.textAlign = 'left';
+    ctx.fillText(`×${critCombo.count}`, cx+16, cy+2);
     ctx.shadowBlur=0;
-    // Timer bar
+    // Bonus à direita
+    ctx.font = 'bold 11px Arial';
+    ctx.fillStyle = `rgba(255,220,80,${0.85})`;
+    ctx.textAlign = 'right';
+    ctx.fillText(`+${critCombo.bonusPct}%`, cx+118, cy+2);
+    // Timer bar (toda a largura)
     const timerFrac = critCombo.timer / 3.5;
-    ctx.fillStyle='rgba(40,20,0,0.7)';
-    ctx.fillRect(cx+4, cy+24, 122, 5);
-    ctx.fillStyle=`rgba(255,${Math.round(120+100*timerFrac)},0,0.9)`;
-    ctx.fillRect(cx+4, cy+24, 122*timerFrac, 5);
+    ctx.fillStyle='rgba(30,12,0,0.8)';
+    ctx.fillRect(cx+12, cy+12, 108, 4);
+    ctx.fillStyle=`rgba(255,${Math.round(100+120*timerFrac)},0,0.95)`;
+    ctx.fillRect(cx+12, cy+12, 108*timerFrac, 4);
     ctx.restore();
   }
 }
@@ -2379,10 +2380,7 @@ function _registerCrit(x, y, value) {
   if(critCombo.count >= 5) {
     critCombo.active  = true;
     critCombo.bonusPct = Math.min((critCombo.count - 4) * 5, 50);
-    if(critCombo.count === 5 || critCombo.count % 3 === 0) {
-      spawnDamageNumber(x, y - 38, 0, 'combo',
-        `COMBO ×${critCombo.count}  +${critCombo.bonusPct}% DMG`);
-    }
+    // Sem floating text de combo — apenas HUD no canto direito
   }
 }
 
@@ -2415,7 +2413,13 @@ function drawDamageNumbers() {
     const frac  = dn.life / dn.lifeMax;
     const alpha = frac < 0.25 ? frac/0.25 : 1;
     const val   = Math.round(dn.value);
-    const label = dn.customText || (val > 0 ? '-'+val : '');
+    // Formatação K para valores altos
+    const _fmtVal = (v) => {
+      if(v >= 1000000) return '-'+(v/1000000).toFixed(1)+'M';
+      if(v >= 1000)    return '-'+(v/1000).toFixed(1)+'K';
+      return '-'+v;
+    };
+    const label = dn.customText || (val > 0 ? _fmtVal(val) : '');
 
     let size, color, stroke='', strokeW=0, bold=true;
 
@@ -2450,15 +2454,23 @@ function drawDamageNumbers() {
       color=`rgba(${dc[dn.type]||'210,230,255'},${alpha*_dotDim})`;
 
     } else {
-      // Normal: transparece bastante quando crit ativo
-      const _normDim = _critActivityTimer>0 ? 0.12 : 1.0;
+      // Normal: transparência por faixa de valor
+      const _normDim = _critActivityTimer>0
+        ? 0.10                         // crit ativo: quase invisível
+        : val < 500 ? 0.35             // baixo dano: bem transparente
+        : val < 1000 ? 0.70            // médio: meio opaco
+        : 1.0;                         // alto: totalmente visível
       const {sz, col} = _dmgScale(val);
       size  = sz;
-      color = col.replace('1)', `${alpha*_normDim})`);
-      if(val >= 1000 && _critActivityTimer<=0){
-        stroke=`rgba(0,0,0,${alpha*0.45})`; strokeW=1.5;
+      if(val >= 1000 && _critActivityTimer <= 0) {
+        // Dano alto: vermelho destaque com stroke
+        color  = `rgba(255,60,30,${alpha*_normDim})`;
+        stroke = `rgba(0,0,0,${alpha*0.5})`;
+        strokeW= 2;
+      } else {
+        color = col.replace('1)', `${alpha*_normDim})`);
       }
-      bold  = val >= 100;
+      bold = val >= 200;
     }
 
     ctx.font = `${bold?'bold ':''}${size}px Arial`;
@@ -2887,12 +2899,13 @@ function showTowerMenu(col, row, sx, sy) {
   menu.classList.remove('hidden');
 
   // Position popup above tile
-  const stageRect=document.getElementById('stage').getBoundingClientRect();
-  const canvasRect=canvas.getBoundingClientRect();
-  const scaleX=canvas.width/canvasRect.width;
-  const scaleY=canvas.height/canvasRect.height;
-  menu.style.left=(sx/scaleX+canvasRect.left-stageRect.left)+'px';
-  menu.style.top =((sy-30)/scaleY+canvasRect.top-stageRect.top)+'px';
+  // translate(-50%,-100%): left=centro, top=borda inferior
+  const _tmW=300, _tmH=180, _tmTopbar=56, _tmBot=62;
+  let _tmLeft = Math.max(_tmW/2+4, Math.min(sx + _tmW/2, canvas.width - _tmW/2 - 4));
+  let _tmTop  = (sy+52) - 10;
+  _tmTop = Math.max(_tmTopbar + _tmH, Math.min(_tmTop, 870 - _tmBot));
+  menu.style.left = _tmLeft + 'px';
+  menu.style.top  = _tmTop  + 'px';
 
   Object.entries(TOWER_DEFS).forEach(([type,def])=>{
     const card=document.createElement('div');
@@ -2921,30 +2934,32 @@ function showUpgradeMenu(tower, sx, sy) {
   const menu=document.getElementById('upgradeMenu');
   menu.classList.remove('hidden');
 
-  const stageRect  = document.getElementById('stage').getBoundingClientRect();
-  const canvasRect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width  / canvasRect.width;
-  const scaleY = canvas.height / canvasRect.height;
+  // ── Posicionamento em coordenadas canvas (stage space) ──────
+  // translate(-50%,-100%) faz: left=centro visual, top=borda inferior
+  const STAGE_W  = canvas.width;        // 1500
+  const STAGE_H  = 870;                 // stage total
+  const TOPBAR_H = 56;                  // altura topbar
+  const BOT_H    = 62;                  // altura bottombar
+  const MENU_W   = 340;                 // largura do card
+  const MENU_H   = 560;                 // altura estimada (conservativo)
+  const GAP_X    = 36;
 
-  const towerScreenX = sx / scaleX + canvasRect.left - stageRect.left;
-  const towerScreenY = sy / scaleY + canvasRect.top  - stageRect.top;
+  // Torre em stage-space: sx (canvas), sy+52 (canvas+topbar)
+  const twX = sx, twY = sy + 52;
 
-  const TOPBAR  = 56;   // altura da topbar — menu nunca pode ficar acima disso
-  const menuW   = 280;
-  const menuH   = 430;
-  const GAP     = 34;
+  // X: centro do menu. Prefere direita, se não couber vai esquerda
+  let menuLeft = twX + GAP_X + MENU_W/2;
+  if(menuLeft + MENU_W/2 > STAGE_W - 8) menuLeft = twX - GAP_X - MENU_W/2;
+  menuLeft = Math.max(MENU_W/2 + 4, Math.min(menuLeft, STAGE_W - MENU_W/2 - 4));
 
-  // X: tenta DIREITA; se não couber, vai pra ESQUERDA
-  let menuX = towerScreenX + GAP;
-  if(menuX + menuW > stageRect.width - 4) menuX = towerScreenX - menuW - GAP;
-  menuX = Math.max(4, menuX);
+  // Y: top CSS = borda inferior visual do menu
+  // Limite superior: top >= TOPBAR_H + MENU_H (menu não sobe acima da topbar)
+  // Limite inferior: top <= STAGE_H - BOT_H (menu não vai além do bottom)
+  let menuTop = twY - 10;
+  menuTop = Math.max(TOPBAR_H + MENU_H, Math.min(menuTop, STAGE_H - BOT_H));
 
-  // Y: topo do menu na altura da torre, mas nunca sobre a topbar nem fora do bottom
-  let menuY = towerScreenY - 30;
-  menuY = Math.max(TOPBAR + 2, Math.min(menuY, stageRect.height - menuH - 4));
-
-  menu.style.left = menuX + 'px';
-  menu.style.top  = menuY + 'px';
+  menu.style.left = menuLeft + 'px';
+  menu.style.top  = menuTop  + 'px';
 
   function rebuild() {
     menu.innerHTML='';
