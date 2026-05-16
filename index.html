@@ -2,10 +2,61 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <title>Tower Defense — Vale dos Slimes</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
+
+/* ─── MOBILE AUTO-SCALE ─────────────────────────────────────── */
+html, body {
+  overflow: hidden !important;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#stage {
+  transform-origin: top left;
+  will-change: transform;
+}
+
+/* Tela de rotação (portrait) */
+#rotateMsg {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: #04080e;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px; font-family: 'Courier New', monospace; color: #c8d8e8;
+}
+#rotateMsg .rotate-icon { font-size: 64px; animation: rotateHint 2s ease-in-out infinite; }
+@keyframes rotateHint {
+  0%,100% { transform: rotate(0deg); }
+  50%      { transform: rotate(90deg); }
+}
+
+/* Botões maiores no mobile */
+@media (max-width: 1024px) {
+  .btn { padding: 12px 18px !important; font-size: 13px !important; }
+  #sendWaveBtn { padding: 14px 22px !important; font-size: 14px !important; }
+  .stat { font-size: 20px !important; }
+  .stat .ico { font-size: 24px !important; }
+  #bottombar { height: 68px !important; }
+  #topbar { height: 60px !important; }
+  #c { margin-top: 60px !important; height: 770px !important; }
+
+  /* Upgrade/Tower menu mobile: reposicionado via JS */
+
+  /* Tower build cards maiores */
+  .tow-card { padding: 14px 10px !important; min-width: 80px !important; }
+  .tow-card div:first-child { font-size: 36px !important; }
+}
+
+/* Impede seleção de texto durante drag */
+* { -webkit-user-select: none; user-select: none; }
+input, textarea { -webkit-user-select: text; user-select: text; }
+
 html,body { width:100%; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#020508; margin:0; padding:16px 0; box-sizing:border-box; overflow:auto; }
 body {
   background:#04080e; font-family:'Courier New',monospace;
@@ -377,6 +428,13 @@ body {
       style="width:180px;padding:9px 0;font-size:10px;letter-spacing:2px;margin-top:8px;">← Voltar</button>
   </div>
 
+
+  <!-- PORTRAIT WARNING -->
+  <div id="rotateMsg">
+    <div class="rotate-icon">📱</div>
+    <div style="font-size:14px;letter-spacing:3px;color:#c8a040;">GIRE O DISPOSITIVO</div>
+    <div style="font-size:11px;letter-spacing:2px;color:#607080;">Este jogo funciona melhor em paisagem</div>
+  </div>
 
   <!-- ══════════════════════════════════════════════════
        MULTIPLAYER LOBBY OVERLAY
@@ -1419,6 +1477,7 @@ function initState() {
   damageNumbers = [];
   _sessionMaxDmg = 0;
   _critActivityTimer = 0;
+  _mpEnemyId = 0; // reseta IDs de inimigos entre partidas
   critCombo.count=0; critCombo.timer=0; critCombo.active=false; critCombo.bonusPct=0;
   resetRB();
   document.getElementById('cardSelectOverlay').style.display='none';
@@ -2214,8 +2273,9 @@ function updateTowers(dt) {
           spawnDamageNumber(bt.x+(Math.random()-0.5)*14, bt.y-(bt.airY||0)-16, b._numDmg, t.element||'mage');
           b._numDmg = 0;
         }
-        // Apply mage element effect (tick-rate limited)
-        if(t.element && Math.random()<0.1) applyElement(bt, t.element, dps*dt);
+        // Apply mage element effect — só host aplica (evita duplo-stack)
+        if((!MP.enabled||MP.isHost) && t.element && Math.random()<0.1)
+          applyElement(bt, t.element, dps*dt);
         if(SK.has('mage_chain')&&!bt.dead){
           let ct=null,cd2=Infinity;
           for(const e of enemies){if(e===bt||e.dead)continue;const cd=Math.sqrt((e.x-bt.x)**2+(e.y-bt.y)**2);if(cd<RTW*1.5&&cd<cd2){ct=e;cd2=cd;}}
@@ -2610,8 +2670,11 @@ function updateProjectiles(dt) {
         const waterPenalty = p.target.waterWeakenT > 0 ? 0.7 : 1.0; // water -30% armor
         const tArmor = (p.isPierce ? rawArmor * 0.4 : rawArmor) * waterPenalty;
         const actualDmg = Math.min(p.target.hp, p.dmg * (1 - tArmor));
-        p.target.hp -= actualDmg;
-        totalDmgDealt += actualDmg;
+        // Só host aplica dano real — guest apenas efeitos visuais
+        if(!MP.enabled || MP.isHost) {
+          p.target.hp -= actualDmg;
+          totalDmgDealt += actualDmg;
+        }
         // Floating damage number
         const numType = p.isCrit ? 'crit' : (p.element || 'normal');
         spawnDamageNumber(
@@ -2620,8 +2683,10 @@ function updateProjectiles(dt) {
           actualDmg, numType
         );
         if(p.isCrit) _registerCrit(p.target.x, p.target.y - (p.target.airY||0) - 18, p.dmg);
-        if(p.isBurn) { p.target.burnTimer=p.burnDur||2.5; p.target.burnDps=p.burnDps||30; }
-        if(p.element) applyElement(p.target, p.element, p.dmg);
+        if(!MP.enabled || MP.isHost) {
+          if(p.isBurn) { p.target.burnTimer=p.burnDur||2.5; p.target.burnDps=p.burnDps||30; }
+          if(p.element) applyElement(p.target, p.element, p.dmg);
+        }
         p.target.flash = 0.12;
         if(p.splash>0) {
           const splashR = p.splash*RTW;
@@ -2630,7 +2695,7 @@ function updateProjectiles(dt) {
             const sdx=e.x-p.target.x, sdy=e.y-p.target.y;
             if(Math.sqrt(sdx*sdx+sdy*sdy)<splashR) {
               const eArmor = ENEMY_DEFS[e.type].armor || 0;
-              e.hp -= p.dmg * 0.4 * (1 - eArmor);
+              if(!MP.enabled || MP.isHost) e.hp -= p.dmg * 0.4 * (1 - eArmor);
             }
           }
           // EXPLOSÃO visual
@@ -3053,7 +3118,8 @@ function showOverlay(type) {
   if(MP.connected && MP.isHost) {
     MP.sendAction('game_over',{
       result:type, skPoints:SK.points, ptsAtStart:_skPtsAtStart,
-      unlocked:[...SK.unlocked], ranks:Object.fromEntries(SK.ranks)
+      unlocked:[...SK.unlocked], ranks:Object.fromEntries(SK.ranks),
+      totalDmg: Math.round(totalDmgDealt)
     });
   }
 }
@@ -3108,8 +3174,9 @@ function restartGame() { hideOverlays(); initState(); closePopups(); }
 // ═══════════════════════════════════════════════════════════════
 canvas.addEventListener('mousemove', e => {
   const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
+  const _sf = canvas.width / rect.width; // correção de escala mobile
+  const mx = (e.clientX - rect.left) * _sf;
+  const my = (e.clientY - rect.top)  * _sf;
   if(MP.connected) MP.sendCursor(mx, my);
   const cell = screenToGrid(mx, my);
   if(cell) {
@@ -4185,15 +4252,14 @@ const MP = {
         if(d.ranks)SK.ranks=new Map(Object.entries(d.ranks));
         SK._save();
         _skPtsAtStart = d.ptsAtStart;
+        if(d.totalDmg) totalDmgDealt = d.totalDmg; // usa dano real do host
         showOverlay(d.result);
         break;
       case 'wave_start':
         if(!this.isHost) {
-          // Guest: apenas sincroniza o número da onda
-          // Os inimigos chegam via state sync do host
           waveNum = d.waveNum;
           state = 'wave';
-          showWaveBanner('⚔ ONDA '+waveNum);
+          if(typeof showWaveBanner==='function') showWaveBanner('⚔ ONDA '+waveNum);
           updateUI();
         }
         break;
@@ -4479,6 +4545,139 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+
+// ═══════════════════════════════════════════════════════════════
+//  MOBILE SYSTEM — Auto-scale + Touch
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  const GAME_W = 1500, GAME_H = 870;
+  const stage  = document.getElementById('stage');
+  const canv   = document.getElementById('c');
+
+  // ── Auto-scale ──────────────────────────────────────────────
+  function applyScale() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const isPortrait = vw < vh && vw < 600;
+    const rm = document.getElementById('rotateMsg');
+    if(rm) rm.style.display = isPortrait ? 'flex' : 'none';
+
+    const scale = Math.min(vw / GAME_W, vh / GAME_H, 1.0);
+    const offX  = Math.max(0, (vw - GAME_W * scale) / 2);
+    const offY  = Math.max(0, (vh - GAME_H * scale) / 2);
+
+    stage.style.transform      = `scale(${scale})`;
+    stage.style.transformOrigin= 'top left';
+    // Usa posicionamento fixo para não conflitar com flex do body
+    if(scale < 0.99) {
+      stage.style.position = 'fixed';
+      stage.style.left     = offX + 'px';
+      stage.style.top      = offY + 'px';
+      stage.style.margin   = '0';
+      document.body.style.overflow = 'hidden';
+      document.body.style.padding  = '0';
+    } else {
+      stage.style.position = 'relative';
+      stage.style.left     = '';
+      stage.style.top      = '';
+      stage.style.margin   = '';
+    }
+
+    // Menu counter-scale: menus ficam legíveis independente da escala do jogo
+    const menuScale = Math.min(1.0 / scale, 2.2);
+    document.documentElement.style.setProperty('--menu-scale', menuScale.toFixed(3));
+
+    window._gameScale = scale;
+  }
+
+  applyScale();
+  window.addEventListener('resize', applyScale);
+  window.addEventListener('orientationchange', () => setTimeout(applyScale, 350));
+
+  // ── Touch → Mouse event mapping ─────────────────────────────
+  let _t0 = null, _tMoved = false, _tTimer = null;
+
+  function mkMouse(type, touch, extra) {
+    return new MouseEvent(type, {
+      bubbles:true, cancelable:true,
+      clientX: touch.clientX, clientY: touch.clientY,
+      ...(extra||{})
+    });
+  }
+
+  stage.addEventListener('touchstart', e => {
+    if(e.touches.length !== 1) return;
+    _t0 = e.touches[0];
+    _tMoved = false;
+    // Simula mousemove para preview de alcance
+    canv.dispatchEvent(mkMouse('mousemove', _t0));
+    // Long press (600ms) para abrir menu sem mover
+    _tTimer = setTimeout(() => {
+      if(!_tMoved && _t0) canv.dispatchEvent(mkMouse('click', _t0));
+    }, 600);
+  }, {passive:true});
+
+  stage.addEventListener('touchmove', e => {
+    if(!_t0 || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    if(Math.abs(t.clientX-_t0.clientX)>10 || Math.abs(t.clientY-_t0.clientY)>10) {
+      _tMoved = true;
+      clearTimeout(_tTimer);
+    }
+    canv.dispatchEvent(mkMouse('mousemove', t));
+  }, {passive:true});
+
+  stage.addEventListener('touchend', e => {
+    clearTimeout(_tTimer);
+    if(!_t0) return;
+    if(!_tMoved && e.changedTouches.length > 0) {
+      const t = e.changedTouches[0];
+      // Tap rápido: dispara click no elemento tocado
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      if(el && el !== canv) {
+        el.dispatchEvent(mkMouse('click', t));
+      } else {
+        canv.dispatchEvent(mkMouse('click', t));
+      }
+    }
+    _t0 = null;
+  }, {passive:true});
+
+  // Previne zoom por duplo-toque no iOS
+  let _lastTap = 0;
+  stage.addEventListener('touchend', e => {
+    const now = Date.now();
+    if(now - _lastTap < 300) e.preventDefault();
+    _lastTap = now;
+  }, {passive:false});
+
+  // ── Reposiciona menus para não sair da tela em mobile ───────
+  const _origShowUpg = window.showUpgradeMenu;
+  window.showUpgradeMenu = function(tower, sx, sy) {
+    _origShowUpg && _origShowUpg(tower, sx, sy);
+    if(window._gameScale >= 0.99) return; // desktop: sem ajuste
+    const menu = document.getElementById('upgradeMenu');
+    if(!menu || menu.classList.contains('hidden')) return;
+    // Centraliza no stage (coordenadas canvas), acima da bottom bar
+    menu.style.left      = Math.round((GAME_W - 340) / 2) + 'px';
+    menu.style.top       = Math.round(GAME_H - 500) + 'px';
+    menu.style.transform = 'none'; // remove translate padrão no mobile
+  };
+
+  const _origShowTow = window.showTowerMenu;
+  window.showTowerMenu = function(col, row, sx, sy) {
+    _origShowTow && _origShowTow(col, row, sx, sy);
+    if(window._gameScale >= 0.99) return;
+    const menu = document.getElementById('towerMenu');
+    if(!menu || menu.classList.contains('hidden')) return;
+    // Centraliza na parte inferior do canvas
+    menu.style.left      = Math.round((GAME_W - 340) / 2) + 'px';
+    menu.style.top       = Math.round(GAME_H - 200) + 'px';
+    menu.style.transform = 'none';
+  };
+
+})();
 
 </script>
 </html>
